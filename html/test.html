@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>test</title>
+    <script type="text/javascript" src="../css/bootstrap.min.css"></script>
+    <script type="text/javascript" src="../css/bootstrap-datetimepicker.min.css"></script>
+    <link rel="stylesheet" href="../css/toastr.min.css">
+
+    <script type="text/javascript" src="../js/jquery-2.2.3.min.js"></script>
+    <script type="text/javascript" src="../js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../js/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript" src="../js/bootstrap-datetimepicker.zh-CN.js"></script>
+
+    <script type="text/javascript" src="../js/md5.js"></script>
+    <script src="../js/toastr.min.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <!-- <select  class="fl" v-model="ProductActive"  @change="changeProduct($event)" >
+             <option v-for="(item,index) in productList" :key="index" :value='item.id' v-text="item.title"></option>  
+        </select>   -->
+
+        <button type="button" value="生成MD5" @click="generateMD5()">生成MD5</button>
+        <button type="button" value="提示消息" @click="message()">提示消息</button>
+   </div>
+
+    <script src="../js/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script type="text/javascript">		// js初始化
+		toastr.options.positionClass = 'toast-top-center';
+    </script>
+    
+    <script>
+        //创建Vue实例
+        const vue = new Vue({
+            el: '#app',
+            data:{
+                productList:[ {id:1,title:"北京"},{id:2,title:"上海"}],
+                ProductActive:"1",      //获取被选中的value值 默认选中的是1(北京)
+            },
+            methods: {
+                changeProduct(event) {
+                    this.ProductActive = event.target.value; //获取option对应的value值
+                    console.log("你选中了",this.ProductActive)
+                },
+                generateMD5(){
+                    let str1 = hex_md5("123456");
+                    let str2 = hex_md5(str1 + 1001);
+                    let str3 = hex_md5(str2 + "abcd".toUpperCase());
+                    console.log(str1)
+                    console.log(str2)
+                    console.log(str3)
+                },
+                message(){
+                    toastr.error("hello world.");
+                },
+            }
+        });
+    </script>
+</body>
+
+</html>

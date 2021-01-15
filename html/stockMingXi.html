@@ -1,0 +1,765 @@
+<!-- 出入库明细 -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/bootstrap-table.css">
+    <link rel="stylesheet" href="../css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" href="../css/mainPage.css">
+    
+    <!-- 提示框 -->
+    <link rel="stylesheet" href="../css/toastr.min.css">
+    <script type="text/javascript" src="../js/jquery-2.2.3.min.js"></script>
+    <script type="text/javascript" src="../js/bootstrap.min.js"></script>
+    <script src="../js/toastr.min.js"></script>
+    <script type="text/javascript">		// js初始化
+        toastr.options.positionClass = 'toast-top-center';
+    </script>
+</head>
+<body>
+<div id="app">
+    <div class="panel panel-default">
+        <ol class="breadcrumb">
+            <li>出入库明细</li>
+        </ol>
+        <div class="panel-body">
+            <div class="row" style="margin-left: 10px;">
+                <form class="form-inline">
+                    <div class="form-group">
+                        <label class="form-label">仓库名：</label>
+                        <select class="form-control" v-model="storeName_selected" @change="change_search_storeName($event)">
+                            <option value="">显示所有</option>
+                            <option v-for="(value,key) in storeList" :value="key" v-text="value"></option>
+                        </select>
+                    </div>
+                </form>
+                <form class="form-inline" style="margin-left: 10px;">
+                    <div class="form-group">
+                        <label class="form-label">物资名称：</label>
+                        <input class="form-control" v-model="search_good_name" placeholder="物资名称">
+                    </div>
+                </form>
+                <form class="form-inline" style="margin-left: 10px;">
+                    <div class="form-group">
+                        <label class="form-label">出入库编号：</label>
+                        <input class="form-control" v-model="search_in_out_number" placeholder="出入库编号">
+                    </div>
+                </form>
+                <form class="form-inline"  style="margin-left: 10px;">
+                    <label class="form-label">日期范围：</label>
+                    <input class="form_date form-control" value="" id="search_start_date" placeholder="开始日期">
+                    <label class="form-label">&nbsp;&nbsp;-&nbsp;&nbsp;</label>
+                    <input class="form_date form-control" value="" id="search_end_date" placeholder="结束日期">
+                </form>
+                <button class="btn btn-success" @click="singleStoreInOrOut()" style="margin-left: 10px;">
+                    <span class="glyphicon glyphicon-search"></span><span>查询</span>
+                </button>
+            </div>
+
+            <div class="row" style="margin-top: 25px">
+                <div class="col-md-5">
+                    <button class="btn btn-sm btn-default" id="add_repository" data-toggle="modal" data-target="#add_modal" @click="queryInOurOutRecord()">
+                        <span class="glyphicon glyphicon-plus"></span><span>添加出入库明细</span>
+                    </button>
+                    <!-- <button class="btn btn-sm btn-default" id="add_repository" data-toggle="modal" data-target="#import_modal">
+                        <span class="glyphicon glyphicon-import"></span> <span>导入</span>
+                    </button>
+                    <button class="btn btn-sm btn-default" id="add_repository" data-toggle="modal" data-target="#export_modal">
+                        <span class="glyphicon glyphicon-export"></span> <span>导出</span>
+                    </button> -->
+                </div>
+            </div>
+            <div class="row" style="margin-top:25px">
+                <div class="col-md-12">
+                    <table id="stockRecords" class="table table-striped table-bordered table-hover">
+                        <tr>
+                            <th>ID</th>
+                            <th>物资名称</th>
+                            <th>规格</th>
+                            <th>用途类别</th>
+                            <th>单位</th>
+                            <th>需求量</th>
+                            <th>实际出入库量</th>
+                            <th>仓库名</th>
+                            <th>出入库单号</th>
+                            <th>物资总价</th>
+                            <th>备注</th>
+                            <th>操作</th>
+                        </tr>
+                        <tbody>
+                            <tr v-for="item in singleStoreInOrOutList">
+                                <td v-text="item.detailId"></td>
+                                <td v-text="item.goodName"></td>
+                                <td v-text="item.goodSize"></td>
+                                <td v-text="item.goodType"></td>
+                                <td v-text="item.goodUnits"></td>
+                                <td v-text="item.goodNeedNum"></td>
+                                <td v-text="item.goodActualNum"></td>
+                                <td v-text="item.goodStoreName"></td>
+                                <td v-text="item.inOutNumber"></td>
+                                <td v-text="item.goodValue"></td>
+                                <td v-text="item.remark"></td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#edit_modal" @click="edit_stock_mingxi(item.detailId)">编辑</button>
+                                    <button class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteWarning_modal" @click="edit_delete(item.detailId)">删除</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- 底部分页 -->
+            <div class="row">
+                <div class="col-sm-4 col-sm-offset-4">
+                    <ul class="pagination">
+						<li><a href="#" v-bind:class="pageIndex==1?'btn disabled':''"  @click="searchPrevious()" data-toggle="modal">&laquo;</a></li>
+						<li v-bind:class="pageIndex==page_data.pageIndex?'active':''" v-for="page in page_data.pages">
+							<a href="#" v-text="page" @click="searchPageIndex(page)" data-toggle="modal"></a>
+						</li>
+						<li><a href="#" v-bind:class="pageIndex >= page_data.pages?'btn disabled':''"  @click="searchNext()" data-toggle="modal">&raquo;</a></li>
+					</ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加物资信息模态框 -->
+    <div id="add_modal" class="modal fade" table-index="-1" role="dialog"
+    aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close" type="button" data-dismiss="modal"
+                    aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">添加出入库明细</h4>
+            </div>
+            <div class="modal-body">
+                <!-- 模态框的内容 -->
+                <div class="row">
+                    <div class="col-md-1 col-sm-1"></div>
+                    <div class="col-md-8 col-sm-8">
+                        <form class="form-horizontal" role="form" style="margin-top: 25px">
+                            <div class="form-group">
+                                <label for="" class="control-label col-md-4 col-sm-4"> <span>出入库单号：</span>
+                                </label>
+                                <div class="col-md-8 col-sm-8">
+                                    <select class="form-control" v-model="addModal_inOutNumber" @change="change_addModal_inOutNumber($event)">
+                                        <option value="">请选择添加的出入库单号</option>
+                                        <option v-for="item in addmodal_queryInOurOutRecordList" :value="item.inOutNumber" v-text="item.inOutNumber"></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="" class="control-label col-md-4 col-sm-4"> <span>物资名称：</span>
+                                </label>
+                                <div class="col-md-8 col-sm-8">
+                                    <select class="form-control" v-model="addModal_good_id" @change="change_addModal_good_id($event)">
+                                        <option value="">请选择物资名称</option>
+                                        <option v-for="(value,key) in goodMap" :value="key" v-text="value"></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="" class="control-label col-md-4 col-sm-4"> <span>用途类别：</span>
+                                </label>
+                                <div class="col-md-8 col-sm-8">
+                                    <div class="dropdown">
+                                        <select class="form-control" v-model="addModal_good_type" @change="change_addModal_good_type($event)">
+                                            <option value="">请选择用途类别</option>
+                                            <option v-for="(value,key) in goodTypeMap" :value="key" v-text="value"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="" class="control-label col-md-4 col-sm-4"> <span>分类：</span>
+                                </label>
+                                <div class="col-md-8 col-sm-8">
+                                    <div class="dropdown">
+                                        <select class="form-control" v-model="addModal_good_model"  @change="change_addModal_good_model($event)">
+                                            <option value="">请选择分类</option>
+                                            <option v-for="(value,key) in goodModelMap" :value="key" v-text="value"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-sm-4"><span>物资供应商：</span>
+                                </label>
+                                <div class="col-md-8 col-sm-8">
+                                    <input type="text" class="form-control" v-model="addModal_good_supllier" placeholder="物资供应商">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-sm-4"><span>出入库仓库：</span>
+                                </label>
+                                <div class="col-md-8 col-sm-8">
+                                    <select class="form-control" v-model="addModal_good_store"  @change="change_addModal_good_store($event)">
+                                        <option value="">请选择出入库仓库</option>
+                                        <option v-for="(value,key) in storeList" :value="key" v-text="value"></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-sm-4"><span>单位：</span></label>
+                                <div class="col-md-8 col-sm-8">
+                                    <select class="form-control" v-model="addModal_good_unit" @change="change_addModal_good_unit($event)">
+                                        <option value="">请选择单位</option>
+                                        <option v-for="(value,key) in goodUnitMap" :value="key" v-text="value"></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="" class="control-label col-md-4 col-sm-4"> <span>规格：</span>
+                                </label>
+                                <div class="col-md-8 col-sm-8">
+                                    <input type="text" class="form-control" v-model="addModal_good_size" placeholder="物资规格">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="" class="control-label col-md-4 col-sm-4"> <span>物资单价：</span>
+                                </label>
+                                <div class="col-md-8 col-sm-8">
+                                    <input type="text" class="form-control" v-model="addModal_good_value" placeholder="物资单价">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="" class="control-label col-md-4 col-sm-4"> <span>所需数量：</span>
+                                </label>
+                                <div class="col-md-8 col-sm-8">
+                                    <input type="text" class="form-control" v-model="addModal_good_NeedNum" placeholder="所需数量">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="" class="control-label col-md-4 col-sm-4"> <span>实际出入库数量：</span>
+                                </label>
+                                <div class="col-md-8 col-sm-8">
+                                    <input type="text" class="form-control" v-model="addModal_good_ActualNum" placeholder="实际出入库数量">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="" class="control-label col-md-4 col-sm-4"><span>备注：</span>
+                                </label>
+                                <div class="col-md-8 col-sm-8">
+                                    <textarea class="form-control" placeholder="备注" v-model="addModal_good_remark"></textarea>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" type="button" data-dismiss="modal">
+                    <span>取消</span>
+                </button>
+                <button class="btn btn-success" type="button" @click="add_mingxi()">
+                    <span>提交</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- 导入仓库信息模态框 -->
+    <div class="modal fade" id="import_modal" table-index="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button class="close" type="button" data-dismiss="modal"
+                        aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">导入仓库信息</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="step1">
+                        <div class="row" style="margin-top: 15px">
+                            <div class="col-md-1 col-sm-1"></div>
+                            <div class="col-md-10 col-sm-10">
+                                <div>
+                                    <h4>点击下面的下载按钮，下载仓库信息电子表格</h4>
+                                </div>
+                                <div style="margin-top: 30px; margin-bottom: 15px">
+                                    <a class="btn btn-info"
+                                        href="../download/repositoryInfo.xlsx"
+                                        target="_blank"> <span class="glyphicon glyphicon-download"></span>
+                                        <span>下载</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="step2" class="hide">
+                        <div class="row" style="margin-top: 15px">
+                            <div class="col-md-1 col-sm-1"></div>
+                            <div class="col-md-10 col-sm-10">
+                                <div>
+                                    <h4>请按照仓库信息电子表格中指定的格式填写需要添加的一个或多个仓库信息</h4>
+                                </div>
+                                <div class="alert alert-info"
+                                    style="margin-top: 10px; margin-bottom: 30px">
+                                    <p>注意：表格中各个列均不能为空，若存在未填写的项，则该条信息将不能成功导入</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="step3" class="hide">
+                        <div class="row" style="margin-top: 15px">
+                            <div class="col-md-1 col-sm-1"></div>
+                            <div class="col-md-8 col-sm-10">
+                                <div>
+                                    <div>
+                                        <h4>请点击下面上传文件按钮，上传填写好的客户信息电子表格</h4>
+                                    </div>
+                                    <div style="margin-top: 30px; margin-bottom: 15px">
+                                        <span class="btn btn-info btn-file"> <span> <span
+                                                class="glyphicon glyphicon-upload"></span> <span>上传文件</span>
+                                        </span>
+                                            <form id="import_file_upload">
+                                                <input type="file" id="file" name="file">
+                                            </form>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hide" id="uploading">
+                        <div class="row" style="margin-top: 15px" id="import_progress_bar">
+                            <div class="col-md-1 col-sm-1"></div>
+                            <div class="col-md-10 col-sm-10"
+                                style="margin-top: 30px; margin-bottom: 30px">
+                                <div class="progress progress-striped active">
+                                    <div class="progress-bar progress-bar-success"
+                                        role="progreessbar" aria-valuenow="60" aria-valuemin="0"
+                                        aria-valuemax="100" style="width: 100%;">
+                                        <span class="sr-only">请稍后...</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-1 col-sm-1"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 col-sm-4"></div>
+                            <div class="col-md-4 col-sm-4">
+                                <div id="import_result" class="hide">
+                                    <div id="import_success" class="hide"
+                                        style="text-align: center;">
+                                        <img src="../media/icons/success-icon.png" alt=""
+                                            style="width: 100px; height: 100px;">
+                                    </div>
+                                    <div id="import_error" class="hide" style="text-align: center;">
+                                        <img src="../media/icons/error-icon.png" alt=""
+                                            style="width: 100px; height: 100px;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-4"></div>
+                        </div>
+                        <div class="row" style="margin-top: 10px">
+                            <div class="col-md-3 col-sm-3"></div>
+                            <div class="col-md-6 col-sm-6" style="text-align: center;">
+                                <h4 id="import_info"></h4>
+                            </div>
+                            <div class="col-md-3 col-sm-3"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn ben-default" type="button" id="previous">
+                        <span>上一步</span>
+                    </button>
+                    <button class="btn btn-success" type="button" id="next">
+                        <span>下一步</span>
+                    </button>
+                    <button class="btn btn-success hide" type="button" id="submit">
+                        <span>&nbsp;&nbsp;&nbsp;提交&nbsp;&nbsp;&nbsp;</span>
+                    </button>
+                    <button class="btn btn-success hide disabled" type="button"
+                        id="confirm" data-dismiss="modal">
+                        <span>&nbsp;&nbsp;&nbsp;确认&nbsp;&nbsp;&nbsp;</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导出仓库信息模态框 -->
+    <div class="modal fade" id="export_modal" table-index="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button class="close" type="button" data-dismiss="modal"
+                        aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">导出仓库信息</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-3 col-sm-3" style="text-align: center;">
+                            <img src="../media/icons/warning-icon.png" alt=""
+                                style="width: 70px; height: 70px; margin-top: 20px;">
+                        </div>
+                        <div class="col-md-8 col-sm-8">
+                            <h3>是否确认导出仓库信息</h3>
+                            <p>(注意：请确定要导出的仓库信息，导出的内容为当前列表的搜索结果)</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-default" type="button" data-dismiss="modal">
+                        <span>取消</span>
+                    </button>
+                    <button class="btn btn-success" type="button"
+                        id="export_repository_download">
+                        <span>确认下载</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除提示模态框 -->
+    <div class="modal fade" id="deleteWarning_modal" table-index="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button class="close" type="button" data-dismiss="modal"
+                        aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">警告</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-3 col-sm-3" style="text-align: center;">
+                            <img src="../media/icons/warning-icon.png" alt=""
+                                style="width: 70px; height: 70px; margin-top: 20px;">
+                        </div>
+                        <div class="col-md-8 col-sm-8">
+                            <h3>是否确认删除该条仓库信息</h3>
+                            <p>(注意：若该仓库已经有出入库记录或仓存信息，则该仓库信息将不能删除成功。如需删除该仓库的信息，请保证该仓库没有出入库和仓存信息关联)</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-default" type="button" data-dismiss="modal">
+                        <span>取消</span>
+                    </button>
+                    <button class="btn btn-danger" type="button" @click="delete_confirm()">
+                        <span>确认删除</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑仓库信息模态框 -->
+    <div id="edit_modal" class="modal fade" table-index="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button class="close" type="button" data-dismiss="modal"
+                        aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">编辑库存明细</h4>
+                </div>
+                <div class="modal-body">
+                    <!-- 模态框的内容 -->
+                <div class="row">
+                    <div class="col-md-1 col-sm-1"></div>
+                    <div class="col-md-8 col-sm-8">
+                        <form class="form-horizontal" role="form" style="margin-top: 25px">
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-sm-4"> <span>物资ID：</span></label>
+                                <div class="col-md-8 col-sm-8">
+                                    <input type="text" class="form-control"v-model="editModal_mingxi_id" readonly>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-sm-4"> <span>物资名称：</span>
+                                </label>
+                                <div class="col-md-8 col-sm-8">
+                                    <select class="form-control" v-model="editModal_good_id">
+                                        <option v-for="(value,key) in goodMap" :value="key" v-text="value"></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-sm-4"> <span>规格：</span>
+                                </label>
+                                <div class="col-md-8 col-sm-8">
+                                    <input type="text" class="form-control"	v-model="editModal_good_size" placeholder="物资规格">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-sm-4"> <span>用途类别：</span>
+                                </label>
+                                <div class="col-md-8 col-sm-8">
+                                    <select class="form-control" v-model="editModal_good_type">
+                                        <option v-for="(value,key) in goodTypeMap" :value="key" v-text="value"></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-sm-4"> <span>物资供应商：</span>
+                                </label>
+                                <div class="col-md-8 col-sm-8">
+                                    <select class="form-control" v-model="editModal_good_supllier">
+                                        <option value="1001">供应商1</option>
+                                        <option value="1003">供应商3</option>
+                                        <option value="1004">供应商4</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-sm-4"><span>单位：</span></label>
+                                <div class="col-md-8 col-sm-8">
+                                    <select class="form-control" v-model="editModal_good_unit">
+                                        <option v-for="(value,key) in goodUnitMap" :value="key" v-text="value"></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-sm-4"><span>物资价值：</span></label>
+                                <div class="col-md-8 col-sm-8">
+                                    <input type="text" class="form-control"	v-model="editModal_good_value" placeholder="物资价值">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-sm-4"> <span>需求量：</span>
+                                </label>
+                                <div class="col-md-8 col-sm-8">
+                                    <input type="text" class="form-control" v-model="editModal_good_NeedNum" placeholder="需求量" style="min-width: 100%">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-sm-4"> <span>实际出入库量：</span>
+                                </label>
+                                <div class="col-md-8 col-sm-8">
+                                    <input type="text" class="form-control" v-model="editModal_good_ActualNum" placeholder="实际出入库数量" style="min-width: 100%">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-sm-4"> <span>出入库仓库名：</span>
+                                </label>
+                                <div class="col-md-8 col-sm-8">
+                                    <select class="form-control" v-model="editModal_good_store">
+                                        <option v-for="(value,key) in storeList" :value="key" v-text="value"></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-sm-4"> <span>出入库单号：</span>
+                                </label>
+                                <div class="col-md-8 col-sm-8">
+                                    <select class="form-control" v-model="editModal_inOutNumber">
+                                        <option v-for="item in inOutNumberList" v-text="item.inOutNumber"></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-sm-4"><span>备注：</span>
+                                </label>
+                                <div class="col-md-8 col-sm-8">
+                                    <textarea class="form-control" v-model="editModal_good_remark" placeholder="备注" style="min-width: 100%"></textarea>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+                <div class="modal-footer">
+                    <button class="btn btn-default" type="button" data-dismiss="modal">
+                        <span>取消</span>
+                    </button>
+                    <button class="btn btn-success" type="button" @click="confirm_update()">
+                        <span>确认更改</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 引入vue -->
+<script src="../js/vue.js"></script>
+<script src="../js/axios.min.js"></script>
+
+<script>
+	const app = new Vue({
+        el:"#app",
+        data:{
+            token:"",
+            singleStoreInOrOutList:[],
+            goodMap:[],         // 物资id及名称map
+            storeList:[],       // 仓库名下拉选项
+            goodModelMap:[],	// 货物分类，如低值易耗或固定资产
+            goodTypeMap:[],		// 物资用途：办公、保洁、防护等
+            goodUnitMap:[],		// 物资单位
+            storedTypeMap:[],	// 仓库类型：平房仓库、楼房仓库等
+            storeStatusMap:[],	// 仓库状态：满载、可用
+            inOutNumberList:[], // 出入库单号
+
+            storeName_selected:"",
+            search_good_name:"",
+            search_in_out_number:"",
+            //添加明细模态框参数
+            addmodal_queryInOurOutRecordList:"",    //显示所有的出入库单号
+            addModal_inOutNumber:"",
+            addModal_good_id:"",
+            addModal_good_type:"",
+            addModal_good_model:"",
+            addModal_good_supllier:"",
+            addModal_good_unit:"",
+            addModal_good_size:"",
+            addModal_good_value:"",
+            addModal_good_remark:"",
+            addModal_good_NeedNum:"",
+            addModal_good_ActualNum:"",
+            addModal_good_store:"",
+            addModal_good_name:"",
+            //编辑模态框参数
+            editModal_mingxi_id:"",
+            editModal_good_id:"",
+            editModal_good_name:"",
+            editModal_good_size:"",
+            editModal_good_type:"",
+            editModal_good_supllier:"",
+            editModal_good_unit:"",
+            editModal_good_value:"",
+            editModal_good_NeedNum:"",
+            editModal_good_ActualNum:"",
+            editModal_good_store:"",
+            editModal_inOutNumber:"",
+            editModal_good_remark:"",
+            delete_row_id:"",     //所点击删除行的明细ID
+            // 分页参数
+            pageIndex:1,
+            pageSize:1,
+            page_data:[],		//包含总页数，当前页数，页面显示条数等
+        },
+        methods: {
+            //按仓库名搜索
+            change_search_storeName(event){
+                this.storeName_selected = event.target.value;
+                console.log(this.storeName_selected)
+            },
+            singleStoreInOrOut(){   //出入库明细查询
+                axios.post("http://localhost:8080/SMS/store/singleStoreInOrOutList", 
+                {operateNo:"1001", goodStore: this.storeName_selected,goodName:this.search_good_name,
+                inOutNumber:this.search_in_out_number,traceLogId:"111111"},{headers: {'token': this.token}}).then(res=>{
+                    console.log(res)
+                    this.singleStoreInOrOutList = res.data.result.list;
+                    this.inOutNumberList = res.data.result.list;
+                    this.page_data = res.data.result;
+                })
+            },
+            queryInOurOutRecord(){      // 查询出入库单号，添加出入库明细时使用
+                axios.post("http://localhost:8080/SMS/store/queryInOurOutRecordList", 
+                {operateNo:"1001", traceLogId:"111111"},{headers: {'token': this.token}}).then(res =>{
+                    console.log(res)
+                    this.addmodal_queryInOurOutRecordList = res.data.result.list;
+                })
+            },
+            getStoreEnum(){		//获取下拉枚举值
+                axios.post("http://localhost:8080/SMS/enums/storeEnum",{operateNo:"1001", traceLogId:"111111"},{headers: {'token': this.token}}).then(res=>{
+                    console.log(res)
+                    this.goodMap = res.data.result.goodMap;
+                    this.storeList = res.data.result.storeMap;
+                    this.goodModelMap = res.data.result.goodModelMap;
+                    this.goodTypeMap = res.data.result.goodTypeMap;
+                    this.goodUnitMap = res.data.result.goodUnitMap
+                    this.storedTypeMap = res.data.result.storedTypeMap
+                    this.storeStatusMap = res.data.result.storeStatusMap
+                });
+            },
+            //添加明细模态框中下拉事件
+            change_addModal_good_id(event){
+                this.addModal_good_id = event.target.value;
+                this.addModal_good_name = this.goodMap[this.addModal_good_id];
+                console.log(this.addModal_good_name)
+            },
+            change_addModal_good_store(event){
+                this.addModal_good_store = event.target.value;
+            },
+            change_addModal_inOutNumber(event){
+                this.addModal_inOutNumber = event.target.value;
+            },
+            change_addModal_good_type(event){
+                this.addModal_good_type = event.target.value;
+            },
+            change_addModal_good_model(event){
+                this.addModal_good_model = event.target.value;
+            },
+            change_addModal_good_unit(event){
+                this.addModal_good_unit = event.target.value;
+            },
+            add_mingxi(){
+                axios.post("http://localhost:8080/SMS/store/singleStoreInOrOutAdd",{operateNo:"1001",goodId:this.addModal_good_id,
+                inOutNumber:this.addModal_inOutNumber,goodType:this.addModal_good_type,goodModel:this.addModal_good_model,
+                goodUnits:this.addModal_good_unit,goodSize:this.addModal_good_size,goodValue:this.addModal_good_value,
+                goodNeedNum:this.addModal_good_NeedNum,goodActualNum:this.addModal_good_ActualNum,remark:this.addModal_good_remark,
+                goodName:this.addModal_good_name,goodStore:this.addModal_good_store,traceLogId:"1111"},{headers: {'token': this.token}}).then(res=>{
+                    console.log(res)
+                    if(res.data.success == true){
+                        $('.modal').map(function () {
+                            if (!$(this).is(":hidden")){
+                                $(this).modal('hide');
+                            }
+                        });
+                        toastr.success("添加成功！");
+                        this.singleStoreInOrOut();
+                    }else{
+                        toastr.error(res.data.errorMsg);
+                    }
+                })
+            },
+            //编辑库存明细
+            edit_stock_mingxi(id){
+                axios.post("http://localhost:8080/SMS/store/singleStoreInOrOutDetail",{id:id, operateNo:"1001",traceLogId:"1111"},{headers: {'token': this.token}}).then(res=>{
+                    console.log(res)
+                    this.editModal_mingxi_id = id;
+                    this.editModal_good_name = res.data.result.goodName;
+                    this.editModal_good_size = res.data.result.goodSize;
+                    this.editModal_good_type = res.data.result.goodType;
+                    this.editModal_good_supllier = "1001";
+                    this.editModal_good_unit = res.data.result.goodUnits;
+                    this.editModal_good_value = res.data.result.goodValue;
+                    this.editModal_good_NeedNum = res.data.result.goodNeedNum;
+                    this.editModal_good_ActualNum = res.data.result.goodActualNum;
+                    this.editModal_good_store = res.data.result.goodStore;
+                    this.editModal_inOutNumber = res.data.result.inOutNumber;
+                    this.editModal_good_remark = res.data.result.remark;
+                    this.editModal_inOutNumber = res.data.result.inOutNumber;
+                })
+            },
+            confirm_update(){
+                // axios.post("http://localhost:8080/SMS/store/singleStoreInOrOutEdit",{operateNo:"1001",goodId:this.editModal_good_id})
+            },
+            //删除明细
+            edit_delete(id){
+                this.delete_row_id = id;
+            },
+            delete_confirm(){
+                axios.post("http://localhost:8080/SMS/store/singleStoreInOrOutDelete",{id:this.delete_row_id, operateNo:"1001",traceLogId:"11111"},{headers: {'token': this.token}}).then(res=>{
+                    console.log(res);
+                })
+            },
+            // 分页查询
+            searchPrevious(){
+                alert("----------")
+            },
+            searchNext(){
+                this.page_now += 1;
+                alert("+++++++++++")
+            },
+            searchPageIndex(page){
+                alert(page)
+            },
+        },
+        created () {
+            this.token = parent.window.document.getElementById("myiframe").getAttribute("value");
+            this.singleStoreInOrOut();
+            this.getStoreEnum();
+        }
+    });
+</script>
+
+</body>
+</html>

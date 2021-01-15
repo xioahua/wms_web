@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户登陆</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="./css/login.css"/>
+</head>
+
+<body>
+    <!-- 定义容器 -->
+	<div class="container">
+		<div class="row">
+			<div class="col-md-4 col-sm-3"></div>
+			<!-- 这一列为登陆表单 -->
+			<div class="col-md-4 col-sm-6">
+				<div class="panel panel-default">
+
+					<!-- 登陆面板的标题 -->
+					<div class="panel-title" style="text-align: center">
+						<h2>登录</h2>
+					</div>
+
+					<!-- 登陆面板的主体 -->
+					<div class="panel-body" id="app">
+
+						<!-- 表单 -->
+						<form id="login_form" class="form-horizontal">
+
+							<div class="form-group">
+								<label class="control-label col-md-4 col-sm-4">用户ID：</label>
+								<div class="col-md-7 col-sm-7">
+									<input type="text" class="form-control"	placeholder="用户ID" name="userId" v-model="userId" />
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label class="control-label col-md-4 col-sm-4"> 
+									密码：
+								</label>
+								<div class="col-md-7 col-sm-7">
+									<input type="password" class="form-control"	placeholder="密码" name="password" v-model="password">
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label class="control-label col-md-4 col-sm-4">
+									验证码：
+								</label>
+								<div class="col-md-5 col-sm-4">		<!-- @keyup.enter="submit()"输入完验证码后按回车可直接登陆 -->
+									<input type="text" class="form-control" placeholder="验证码" v-model="userInputCheckCode" @keyup.enter="submit()">
+								</div>
+								<div>
+									<img alt="checkCodeImg" :src="imageCodeSrc" @click="changeImageCode()">
+								</div>
+							</div>
+
+							<div>
+								<div class="col-md-4 col-sm-4"></div>
+								<div class="col-md-4 col-sm-4">
+									<button id="submit" type="button" class="btn btn-primary" @click="submit()">登陆</button>
+								</div>
+								<div class="col-md-4 col-sm-4"></div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+    <script src="./js/md5.js"></script>		<!-- 使用MD5加密 -->
+    <script src="./js/vue.js"></script>
+    <script src="./js/jquery-2.2.3.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        //创建Vue实例
+        const vue = new Vue({
+            el: '#app',
+            data: {
+                userId: "1001",
+                password: "123456",
+                userInputCheckCode:"",	//用户输入的验证码
+				checkCode:"",		//headers中传过来的真实验证码
+                imageCodeSrc:"",
+				password_MD5:"",
+            },
+            methods: {
+                // 点击更换验证码
+                changeImageCode(){
+					let date = new Date().getTime();
+					console.log(date)
+					axios.get("http://localhost:8080/SMS/account/checkCode/"+ date, {responseType:'blob'}).then(res=>{
+						console.log(res);
+						this.imageCodeSrc = window.URL.createObjectURL(res.data);
+						this.checkCode = res.headers.checkcode;
+					});
+					// this.imageCodeSrc = "http://localhost:8080/SMS/account/checkCode/"+ date;
+                },
+                // 提交登陆
+                submit(){
+					this.generateMD5();
+                    if(this.userId!="" && this.password != "" && this.userInputCheckCode != ""){
+                        axios.post("http://localhost:8080/SMS/account/login",{"userId":this.userId, "password":this.password_MD5, "checkCode":this.checkCode}).then(res=>{
+							console.log(res);
+							if(res.data.success == true){
+								window.location.href='./mainPage.html?userId=' + res.data.result.userID+'&userName=' + res.data.result.userName +'&token='+res.data.result.token;
+							}
+							else{
+								alert(res.data.errorMsg)
+								this.changeImageCode();
+							}
+                        });
+                    }else if(this.userId =='' || this.password == ''){
+                        alert("请输入账号密码！")
+                    }else if(this.userInputCheckCode == ''){
+						alert("请输入验证码！")
+					}
+                },
+				generateMD5(){	
+					let str1 = hex_md5(this.password);
+                    let str2 = hex_md5(str1 + this.userId);
+                    this.password_MD5 = hex_md5(str2 + this.userInputCheckCode.toUpperCase());
+				},
+        	},
+			created () {
+				this.changeImageCode();
+			}
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,479 @@
+<!-- 仓库信息管理 -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/bootstrap-table.css">
+    <link rel="stylesheet" href="../css/bootstrap-datetimepicker.min.css">
+	<link rel="stylesheet" href="../css/mainPage.css">
+	<link rel="stylesheet" href="../css/toastr.min.css">
+	<!-- 模态框、下拉框等功能依赖于jquery.js -->
+	<script type="text/javascript" src="../js/jquery-2.2.3.min.js"></script>
+	<script type="text/javascript" src="../js/bootstrap.min.js"></script>
+	<script src="../js/vue.js"></script>
+	<script src="../js/axios.min.js"></script>
+	<script src="../js/toastr.min.js"></script>
+</head>
+<body>
+	<div id="app">
+		<div class="panel panel-default">
+			<ol class="breadcrumb">
+				<li>仓库基础信息管理</li>
+			</ol>
+			<div class="panel-body">
+				<form class="form-inline">
+					<div class="form-group">
+						<label for="storeName">仓库名称：</label>
+						<input type="text" class="form-control" id="storeName" placeholder="查询仓库名称" v-model="storeName">
+					</div>
+					<div class="form-group">
+						<label for="storeAddress">仓库地址：</label>
+						<input type="text" class="form-control" id="storeAddress" placeholder="查询仓库地址" v-model="storeAddress">
+					</div>
+					<div class="form-group">
+						<label for="product_name">仓库状态：</label>
+						<div class="dropdown" style="display: inline;">
+							<select class="form-control" v-model="select_Full_Avaliable" @change="change_Full_AVALIABLE($event)">
+								<option value="">所有状态</option>
+								<option value="FULL">满载</option>
+								<option value="AVALIABLE">可用</option>
+							</select>
+						</div>
+					</div>
+					<button type="button" id="search_button" class="btn btn-success" @click="queryStore()">
+						<span class="glyphicon glyphicon-search"></span><span>查询</span>
+					</button>
+				</form>
+		
+				<div class="row" style="margin-top: 25px">
+					<div class="col-md-5">
+						<button class="btn btn-sm btn-default" id="add_repository" data-toggle="modal" data-target="#add_modal">
+							<span class="glyphicon glyphicon-plus"></span><span>添加仓库</span>
+						</button>
+					</div>
+				</div>
+		
+				<div class="row" style="margin-top: 30px">
+					<div class="col-md-12">
+						<table id="repositoryList" class="table table-striped table-bordered table-hover">
+							<tr>
+								<th>仓库ID</th>
+								<th>仓库名称</th>
+								<th>仓库类型</th>
+								<th>仓库地址</th>
+								<th>仓库状态</th>
+								<th>仓库面积</th>
+								<th>仓库描述</th>
+								<th>仓库总资产/元</th>
+								<th>备注</th>
+								<th>创建人</th>
+								<th>创建时间</th>
+								<th>更新人</th>
+								<th>更新时间</th>
+								<th>操作</th>
+							</tr>
+							<tbody>
+								<tr v-for="item,index in storeLists">
+									<td v-text="item.id"></td>
+									<td v-text="item.storeName"></td>
+									<td v-text="item.storeType"></td>
+									<td v-text="item.storeAddress"></td>
+									<td v-text="item.storeStatus"></td>
+									<td v-text="item.storeArea"></td>
+									<td v-text="item.storeDesc"></td>
+									<td v-text="item.storeTotalPrice"></td>
+									<td>无</td>
+									<td>小张</td>
+									<td>2020-11-13 13:25:35</td>
+									<td>小李</td>
+									<td>2020-11-15 13:11:13</td>
+									<td>
+										<button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#edit_modal" @click="edit(item.id)">编辑</button>
+										<button class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteWarning_modal" @click="delete_row(item.id)">删除</button>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<!-- 底部分页 -->
+				<div class="row">
+					<div class="col-sm-4 col-sm-offset-4">
+						<ul class="pagination">
+							<li><a href="#">&laquo;</a></li>
+							<li class="active"><a href="#">1</a></li>
+							<li><a href="#">2</a></li>
+							<li><a href="#">3</a></li>
+							<li><a href="#">4</a></li>
+							<li><a href="#">5</a></li>
+							<li><a href="#">&raquo;</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<!-- 添加仓库信息模态框 -->
+		<div id="add_modal" class="modal fade" table-index="-1" role="dialog"
+			aria-labelledby="myModalLabel" aria-hidden="true"
+			data-backdrop="static">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button class="close" type="button" data-dismiss="modal"
+							aria-hidden="true">&times;</button>
+						<h4 class="modal-title" id="myModalLabel">添加仓库信息</h4>
+					</div>
+					<div class="modal-body">
+						<!-- 模态框的内容 -->
+						<div class="row">
+							<div class="col-md-1 col-sm-1"></div>
+							<div class="col-md-8 col-sm-8">
+								<form class="form-horizontal" role="form" style="margin-top: 25px">
+									<div class="form-group">
+										<label for="" class="control-label col-md-4 col-sm-4"> <span>仓库名称：</span>
+										</label>
+										<div class="col-md-8 col-sm-8">
+											<input type="text" class="form-control" v-model="store_name_addModal" placeholder="仓库名称">
+										</div>
+									</div>
+									<div class="form-group">
+										<label for="" class="control-label col-md-4 col-sm-4"> <span>仓库类型：</span>
+										</label>
+										<div class="col-md-8 col-sm-8">
+											<select class="form-control" v-model="store_type_addModal" @change="change_store_type_addModal($event)">
+												<option value="">所有类型</option>
+												<option v-for="(value,key) in storedTypeMap" :value="key" v-text="value"></option>
+											</select>
+										</div>
+									</div>
+									<div class="form-group">
+										<label for="" class="control-label col-md-4 col-sm-4"> <span>仓库地址：</span>
+										</label>
+										<div class="col-md-8 col-sm-8">
+											<input type="text" class="form-control" v-model="store_address_addModal" placeholder="仓库地址">
+										</div>
+									</div>
+									<div class="form-group">
+										<label for="" class="control-label col-md-4 col-sm-4"> <span>仓库状态：</span>
+										</label>
+										<div class="col-md-8 col-sm-8">
+											<select class="form-control" v-model="store_status_addModal" @change="change_store_status_addModal($event)">
+												<option value="">所有状态</option>
+												<option v-for="(value,key) in storeStatusMap" :value="key" v-text="value"></option>
+											</select>
+										</div>
+									</div>
+									<div class="form-group">
+										<label for="" class="control-label col-md-4 col-sm-4"> <span>仓库面积：</span>
+										</label>
+										<div class="col-md-8 col-sm-8">
+											<input type="text" class="form-control" v-model="store_area_addModal" placeholder="仓库面积">
+										</div>
+									</div>
+									<div class="form-group">
+										<label for="" class="control-label col-md-4 col-sm-4"> <span>仓库描述：</span>
+										</label>
+										<div class="col-md-8 col-sm-8">
+											<input type="text" class="form-control" v-model="store_dec_addModal" placeholder="仓库描述" style="min-width: 100%">
+										</div>
+									</div>
+									<div class="form-group">
+										<label for="" class="control-label col-md-4 col-sm-4"> <span>备注：</span>
+										</label>
+										<div class="col-md-8 col-sm-8">
+											<textarea class="form-control" v-model="store_remark_addModal" placeholder="备注" style="min-width: 100%"></textarea>
+										</div>
+									</div>
+								</form>
+							</div>
+							<div class="col-md-1 col-sm-1"></div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-default" type="button" data-dismiss="modal">
+							<span>取消</span>
+						</button>
+						<button class="btn btn-success" type="button" @click="addStore()">
+							<span>提交</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<!-- 删除提示模态框 -->
+		<div class="modal fade" id="deleteWarning_modal" table-index="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button class="close" type="button" data-dismiss="modal"
+							aria-hidden="true">&times;</button>
+						<h4 class="modal-title" id="myModalLabel">警告</h4>
+					</div>
+					<div class="modal-body">
+						<div class="row">
+							<div class="col-md-3 col-sm-3" style="text-align: center;">
+								<img src="../media/icons/warning-icon.png" alt=""
+									style="width: 70px; height: 70px; margin-top: 20px;">
+							</div>
+							<div class="col-md-8 col-sm-8">
+								<h3>是否确认删除该仓库</h3>
+								<p>(注意：若该仓库已经有出入库记录或仓存信息，则该仓库将不能删除成功。如需删除该仓库的信息，请保证该仓库没有出入库和仓存信息关联)</p>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-default" type="button" data-dismiss="modal">
+							<span>取消</span>
+						</button>
+						<button class="btn btn-danger" type="button" @click="confirm_delete()">
+							<span>确认删除</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<!-- 编辑仓库信息模态框 -->
+		<div id="edit_modal" class="modal fade" table-index="-1" role="dialog"
+			aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button class="close" type="button" data-dismiss="modal"
+							aria-hidden="true">&times;</button>
+						<h4 class="modal-title" id="myModalLabel">编辑仓库信息</h4>
+					</div>
+					<div class="modal-body">
+						<!-- 模态框的内容 -->
+						<div class="row">
+							<div class="col-md-1 col-sm-1"></div>
+							<div class="col-md-8 col-sm-8">
+								<form class="form-horizontal" role="form" id="repository_form_edit"
+									style="margin-top: 25px">
+									<div class="form-group">
+										<label class="control-label col-md-4 col-sm-4"> <span>仓库ID：</span>
+										</label>
+										<div class="col-md-8 col-sm-8">
+											<input type="text" class="form-control" v-model="store_id_editModal" readonly>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-md-4 col-sm-4"> <span>仓库名称：</span>
+										</label>
+										<div class="col-md-8 col-sm-8">
+											<input type="text" class="form-control" v-model="store_name_editModal" placeholder="仓库名称">
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-md-4 col-sm-4"> <span>仓库类型：</span>
+										</label>
+										<div class="col-md-8 col-sm-8">
+											<select class="form-control" v-model="store_type_editModal" @change="change_store_type_editModal($event)">
+												<option v-for="(value,key) in storedTypeMap" :value="key" v-text="value"></option>
+											</select>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-md-4 col-sm-4"><span>仓库地址：</span>
+										</label>
+										<div class="col-md-8 col-sm-8">
+											<input type="text" class="form-control" v-model="store_address_editModal" placeholder="仓库地址">
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-md-4 col-sm-4"> <span>仓库状态：</span>
+										</label>
+										<div class="col-md-8 col-sm-8">
+											<select class="form-control" v-model="store_statu_editModal" @change="change_store_status_editModal($event)">
+												<option v-for="(value,key) in storeStatusMap" :value="key" v-text="value"></option>
+											</select>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-md-4 col-sm-4"> <span>仓库面积：</span>
+										</label>
+										<div class="col-md-8 col-sm-8">
+											<input type="text" class="form-control" v-model="store_area_editModal" placeholder="仓库面积">
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-md-4 col-sm-4"> <span>描述：</span>
+										</label>
+										<div class="col-md-8 col-sm-8">
+											<input type="text" class="form-control" v-model="store_desc_editModal" placeholder="描述">
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-md-4 col-sm-4"> <span>备注：</span>
+										</label>
+										<div class="col-md-8 col-sm-8">
+											<textarea class="form-control" v-model="store_remark_editModal" placeholder="备注"></textarea>
+										</div>
+									</div>
+								</form>
+							</div>
+							<div class="col-md-1 col-sm-1"></div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-default" type="button" data-dismiss="modal">
+							<span>取消</span>
+						</button>
+						<button class="btn btn-success" type="button" @click="confirm_update()">
+							<span>确认更改</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">		// js初始化
+		toastr.options.positionClass = 'toast-top-center';
+	</script>
+	<script>
+		const app = new Vue({
+			el:"#app",
+			data:{
+				token:"",
+				storeLists:[],
+				storeName:"",
+				storeAddress:"",
+				select_Full_Avaliable:"",		//按仓库状态查询
+
+				delete_row_index:"",	//所要删除行的索引
+				//下拉枚举
+				storedTypeMap:[],
+				storeStatusMap:[],
+				//添加模态框参数
+				store_name_addModal:"",
+				store_type_addModal:"",
+				store_address_addModal:"",
+				store_status_addModal:"",
+				store_area_addModal:"",
+				store_dec_addModal:"",
+				store_remark_addModal:"",
+				//仓库信息编辑模态框参数
+				store_id_editModal:"",
+				store_name_editModal:"",
+				store_type_editModal:"",
+				store_address_editModal:"",
+				store_statu_editModal:"",
+				store_area_editModal:"",
+				store_desc_editModal:"",
+				store_remark_editModal:"",
+			},
+			methods: {
+				queryStore(){
+					axios.post("http://localhost:8080/SMS/store/queryStore",
+						{operateNo:"1001", storeName:this.storeName,storeAddress:this.storeAddress,
+						storeStatus:this.select_Full_Avaliable,traceLogId:"111111"},{headers:{'token': this.token}}).then(res=>{
+						this.storeLists = res.data.result.list
+						console.log(res)
+					})
+				},
+				change_store_type_addModal(event){
+					this.store_type_addModal = event.target.value;
+				},
+				change_store_status_addModal(event){
+					this.store_status_addModal = event.target.value;
+				},
+				change_Full_AVALIABLE(event){
+					this.store_status_addModal = event.target.value;
+				},
+				getStoreEnum(){		//获取下拉枚举值
+					axios.post("http://localhost:8080/SMS/enums/storeEnum",{operateNo:"1001", traceLogId:"111111"},{headers:{'token': this.token}}).then(res=>{
+						console.log(res)
+						this.storedTypeMap = res.data.result.storedTypeMap
+						this.storeStatusMap = res.data.result.storeStatusMap
+					});
+				},
+				addStore(){		//添加仓库
+					axios.post("http://localhost:8080/SMS/store/addStore",{operateNo:"1001",storeName:this.store_name_addModal,
+						storeAddress:this.store_address_addModal,storeType:this.store_type_addModal, storeStatus:this.store_status_addModal, 
+						storeArea:this.store_area_addModal, storeDesc:this.store_dec_addModal, remark:this.store_remark_addModal},{headers:{'token': this.token}}).then(res=>{
+							console.log(res)
+							if(res.data.success == true){
+								$('.modal').map(function () {
+									if (!$(this).is(":hidden")){
+										$(this).modal('hide');
+									}
+								});
+								toastr.success("添加仓库成功！");
+								this.queryStore();
+							}else{
+								toastr.error(res.data.errorMsg);
+							}
+						})
+				},
+				edit(id){			//每行操作中编辑按钮触发
+					console.log(id);
+					axios.post("http://localhost:8080/SMS/store/queryDetailById",{id:id,operateNo:"1001",traceLogId:"11111"},{headers:{'token': this.token}}).then(res=>{
+						console.log(res)
+						this.store_id_editModal = res.data.result.id;
+						this.store_name_editModal = res.data.result.storeName;
+						this.store_type_editModal = res.data.result.storeType;
+						this.store_address_editModal= res.data.result.storeAddress;
+						this.store_statu_editModal = res.data.result.storeStatus;
+						this.store_area_editModal = res.data.result.storeArea;
+						this.store_desc_editModal = res.data.result.storeDesc;
+						this.store_remark_editModal = res.data.result.remark;
+					})
+				},
+				change_store_type_editModal($event){
+					this.store_type_editModal = event.target.value;
+				},
+				change_store_status_editModal($event){
+					this.store_statu_editModal = event.target.value;
+				},
+				confirm_update(){
+					axios.post("http://localhost:8080/SMS/store/editStore",{operateNo:"1001",id:this.store_id_editModal,storeName:this.store_name_editModal,
+					storeType:this.store_type_editModal,storeAddress:this.store_address_editModal,storeStatus:this.store_statu_editModal,storeArea:this.store_area_editModal,
+					storeDesc:this.store_desc_editModal,remark:this.store_remark_editModal},{headers:{'token': this.token}}).then(res=>{
+						console.log(res)
+						if(res.data.success == true){
+							$('.modal').map(function () {
+								if (!$(this).is(":hidden")){
+									$(this).modal('hide');
+								}
+                			});
+							toastr.success("编辑" + this.store_name_editModal + "成功！");
+							this.queryStore();
+						}else{
+							toastr.success(res.data.errorMsg);
+						}
+					})
+				},
+				delete_row(index){
+					this.delete_row_index = index;
+				},
+				confirm_delete(){		// 模态框中确认删除
+					console.log("confirm_delete中index：" + this.delete_row_index)
+					axios.post("http://localhost:8080/SMS/store/delStore",{operateNo:"1001", id:this.storeLists[this.delete_row_index].id, traceLogId:"111111"},
+					{headers:{'token': this.token}}).then(res=>{
+						console.log(res)
+						if(res.data.success == true){
+							$('.modal').map(function () {
+								if (!$(this).is(":hidden")){
+									$(this).modal('hide');
+								}
+                			});
+							toastr.success("删除" + this.storeLists[this.delete_row_index].storeName + "成功！");
+							this.queryStore();
+						}else{
+							toastr.success("删除" + this.storeLists[this.delete_row_index].storeName + "失败，请重试！");
+						}
+					});	
+				},
+			},
+			created () {
+				this.token = parent.window.document.getElementById("myiframe").getAttribute("value");
+				this.queryStore();
+				this.getStoreEnum();
+			}
+		});
+	</script>
+</body>
+</html>

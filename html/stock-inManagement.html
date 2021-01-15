@@ -1,0 +1,244 @@
+<!-- 入库 -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/bootstrap-table.css">
+    <link rel="stylesheet" href="../css/bootstrap-datetimepicker.min.css">
+	<link rel="stylesheet" href="../css/mainPage.css">
+</head>
+<body>
+<div class="panel panel-default" id="app">
+	<ol class="breadcrumb">
+		<li>货物入库</li>
+	</ol>
+	<div class="panel-body">
+		<div class="row">
+			<div class="col-md-6 col-sm-6">
+				<div class="row">
+					<div class="col-md-1 col-sm-1"></div>
+					<div class="col-md-10 col-sm-11">
+						<form action="" class="form-inline">
+							<div class="form-group">
+								<label for="" class="form-label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;供应商：</label>
+								<input type="text" class="form-control" id="supplier_input" placeholder="请输入供应商名称">
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6 col-sm-6">
+				<div class="row">
+					<div class="col-md-1 col-sm-1"></div>
+					<div class="col-md-10 col-sm-11">
+						<form action="" class="form-inline">
+							<div class="form-group">
+								<label for="" class="form-label">入库货物：</label>
+								<input type="text" class="form-control" id="goods_input" placeholder="请输入货物名称">
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row visible-md visible-lg">
+			<div class="col-md-12 col-sm-12">
+				<div v-show="isShow" class='pull-right' style="cursor:pointer" id="info-show" @click="showOrHide()">
+					<span>显示详细信息</span>
+					<span class="glyphicon glyphicon-chevron-down"></span>
+				</div>
+				<div v-show="!isShow" class='pull-right' style="cursor:pointer" id="info-hidden" @click="showOrHide()">
+					<span>隐藏详细信息</span>
+					<span class="glyphicon glyphicon-chevron-up"></span>
+				</div>
+			</div>
+		</div>
+		<div v-show="!isShow" class="row" id="detailInfo" style="margin-bottom:30px">
+			<div class="col-md-6 col-sm-6  visible-md visible-lg">
+				<div class="row">
+					<div class="col-md-1 col-sm-1"></div>
+					<div class="col-md-10 col-sm-10">
+						<label for="" class="text-info">供应商信息</label>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-1 col-sm-1"></div>
+					<div class="col-md-11 col-sm-11">
+						<div class="col-md-6 col-sm-6">
+							<div style="margin-top:5px">
+								<div class="col-md-6 col-sm-6">
+									<span for="" class="pull-right">供应商ID：</span>
+								</div>
+								<div class="col-md-6 col-sm-6">
+									<span id="info_supplier_ID">-</span>
+								</div>
+							</div>
+							<div style="margin-top:5px">
+								<div class="col-md-6 col-sm-6">
+									<span for="" class="pull-right">负责人：</span>
+								</div>
+								<div class="col-md-6 col-sm-6">
+									<span id="info_supplier_person">-</span>
+								</div>
+							</div>
+							<div style="margin-top:5px">
+								<div class="col-md-6 col-sm-6">
+									<span for="" class="pull-right">电子邮件：</span>
+								</div>
+								<div class="col-md-6">
+									<span id="info_supplier_email">-</span>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-6 col-sm-6  visible-md visible-lg">
+							<div style="margin-top:5px">
+								<div class="col-md-6 col-sm-6">
+									<span for="" class="pull-right">供应商名：</span>
+								</div>
+								<div class="col-md-6 col-sm-6">
+									<span id="info_supplier_name">-</span>
+								</div>
+							</div>
+							<div style="margin-top:5px">
+								<div class="col-md-6 col-sm-6">
+									<span for="" class="pull-right">联系电话：</span>
+								</div>
+								<div class="col-md-6 col-sm-6">
+									<span id="info_supplier_tel">-</span>
+								</div>
+							</div>
+							<div style="margin-top:5px">
+								<div class="col-md-6 col-sm-6">
+									<span for="" class="pull-right">联系地址：</span>
+								</div>
+								<div class="col-md-6 col-sm-6">
+									<span id="info_supplier_address">-</span>
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6 col-sm-6">
+				<div class="row">
+					<div class="col-md-1 col-sm-1"></div>
+					<div class="col-md-11 col-sm-11">
+						<label for="" class="text-info">货物信息</label>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-1 col-sm-1"></div>
+					<div class="col-md-11 col-sm-11">
+						<div class="col-md-6 col-sm-6">
+							<div style="margin-top:5px">
+								<div class="col-md-6 col-sm-6">
+									<span for="" class="pull-right">货物ID：</span>
+								</div>
+								<div class="col-md-6 col-sm-6">
+									<span id="info_goods_ID">-</span>
+								</div>
+							</div>
+							<div style="margin-top:5px">
+								<div class="col-md-6 col-sm-6">
+									<span for="" class="pull-right">货物类型：</span>
+								</div>
+								<div class="col-md-6 col-sm-6">
+									<span id="info_goods_type">-</span>
+								</div>
+							</div>
+							<div style="margin-top:5px">
+								<div class="col-md-6 col-sm-6">
+									<span for="" class="pull-right">货物名：</span>
+								</div>
+								<div class="col-md-6 col-sm-6">
+									<span id="info_goods_name">-</span>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-6 col-sm-6">
+							<div style="margin-top:5px">
+								<div class="col-md-6 col-sm-6">
+									<span for="" class="pull-right">货物规格：</span>
+								</div>
+								<div class="col-md-6 col-sm-6">
+									<span id="info_goods_size">-</span>
+								</div>
+							</div>
+							<div style="margin-top:5px">
+								<div class="col-md-6 col-sm-6">
+									<span for="" class="pull-right">货物价值：</span>
+								</div>
+								<div class="col-md-6 col-sm-6">
+									<span id="info_goods_value">-</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+        <div class="row" style="margin-top: 10px">
+            <div class="col-md-6 col-sm-6">
+                <div class="row">
+                    <div class="col-md-1 col-sm-1"></div>
+                    <div class="col-md-10 col-sm-11">
+                        <form action="" class="form-inline">
+                            <div class="form-group">
+                                <label class="form-label">入库仓库：</label>
+                                	<select  id="repository_selector" class="form-control">
+										<option v-for="list in lists" :value="list">{{list}}</option>
+                                	</select>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+		<div class="row" style="margin-top:20px">
+			<div class="col-md-6 col-sm-6">
+				<div class="row">
+					<div class="col-md-1 col-sm-1"></div>
+					<div class="col-md-10 col-sm-11">
+						<form action="" class="form-inline" id="stockin_form">
+							<div class="form-group">
+								<label for="" class="control-label">入库数量：</label>
+								<input type="text" class="form-control" placeholder="请输入数量" id="stockin_input" name="stockin_input">
+								<span>(当前库存量：</span>
+								<span id="info_storage">-</span>
+								<span>)</span>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row" style="margin-top:80px"></div>
+	</div>
+	<div class="panel-footer">
+		<div style="text-align:right">
+			<button class="btn btn-success" id="submit">提交入库</button>
+		</div>
+	</div>
+</div>
+<!-- 引入vue -->
+<script src="../js/vue.js"></script>
+
+<script>
+	const app = new Vue({
+        el:"#app",
+        data:{
+			isShow: true,
+			lists:["01号仓库","02号仓库"]
+        },
+        methods: {
+            showOrHide(){
+				this.isShow = !this.isShow
+			}
+        },
+    });
+</script>
+
+</body>
+</html>

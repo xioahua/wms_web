@@ -1,0 +1,392 @@
+<!-- 库存管理，只能查看库存，不支持导入、导出 -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/bootstrap-table.css">
+    <link rel="stylesheet" href="../css/bootstrap-datetimepicker.min.css">
+	<link rel="stylesheet" href="../css/mainPage.css">
+	<!-- 模态框、下拉框等功能依赖于jquery.js -->
+	<script type="text/javascript" src="../js/jquery-2.2.3.min.js"></script>
+	<script type="text/javascript" src="../js/bootstrap.min.js"></script>
+</head>
+<body>
+<div id="app">
+	<div class="panel panel-default">
+		<ol class="breadcrumb">
+			<li>库存管理</li>
+		</ol>
+		<div class="panel-body" >
+			<form class="form-inline">
+				<div class="form-group">
+					<label for="product_name">物资名称：</label>
+					<input type="text" class="form-control" id="product_name" placeholder="查询物资名称" v-model="product_name">
+				</div>
+				<div class="form-group">
+					<label for="goods_type">物资分类：</label>
+					<select class="form-control" v-model="goodTypeSelected" @change="changeGoodType($event)">
+						<option value="">所有用途</option>
+						<option v-for="(value,key) in goodTypeMap" :value="key" v-text="value"></option>
+					</select>
+				</div>
+				<button type="button" id="search_button" class="btn btn-success" @click="getReo()">
+					<span class="glyphicon glyphicon-search"></span><span>查询</span>
+				</button>
+			</form>
+	
+			<div class="row" style="margin-top: 30px">
+				<div class="col-sm-12">
+					<table id="repositoryList" class="table table-striped table-bordered table-hover">
+						<tr>
+							<th>物资ID</th>
+							<th>物资名称</th>
+							<th>分类</th>
+							<th>用途</th>
+							<th>规格</th>
+							<th>单位</th>
+							<th>单价/元</th>
+							<th>出入库数量</th>
+							<th>供应商</th>
+							<th>所属仓库</th>
+							<th>备注</th>
+						</tr>
+						<tbody>
+							<tr v-for="item,index in storeGoodList" :key="index">
+								<td v-text="item.id"></td>
+								<td v-text="item.goodName"></td>
+								<td v-text="item.goodModel"></td>
+								<td v-text="item.goodType"></td>
+								<td v-text="item.goodSize"></td>
+								<td v-text="item.goodUnits"></td>
+								<td v-text="item.goodValue"></td>
+								<td v-text="item.goodNum"></td>
+								<td v-text="item.goodSupply"></td>
+								<td v-text="item.goodBelongStore"></td>
+								<td v-text="item.remark"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<!-- 底部分页 -->
+			<div class="row">
+				<div class="col-sm-2" style="display: flex;align-items: center;">
+					<div>共<span v-text="page_data.pages"></span>页&emsp;每页</div>
+					<select onchange="">
+						<option value="10">10</option>
+						<option value="15">15</option>
+						<option selected="selected" value="20">20</option>
+						<option value="30">30</option>
+						<option value="40">40</option>
+						<option value="60">60</option>
+						<option value="100">100</option>
+					</select>
+					<div>条&emsp;共<span v-text="page_data.total"></span>条记录</div>
+				</div>
+				<div class="col-md-offset-3 col-sm-offset-3">
+					<ul class="pagination">
+						<li><a href="#" v-bind:class="pageIndex==1?'btn disabled':''"  @click="searchPrevious()" data-toggle="modal">&laquo;</a></li>
+						<li v-bind:class="pageIndex==page_data.pageIndex?'active':''" v-for="page in page_data.pages">
+							<a href="#" v-text="page" @click="searchPageIndex(page)" data-toggle="modal"></a>
+						</li>
+						<li><a href="#" v-bind:class="pageIndex >= page_data.pages?'btn disabled':''"  @click="searchNext()" data-toggle="modal">&raquo;</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- 删除提示模态框 -->
+	<div class="modal fade" id="deleteWarning_modal" table-index="-1"
+		role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button class="close" type="button" data-dismiss="modal"
+						aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="myModalLabel">警告</h4>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-md-3 col-sm-3" style="text-align: center;">
+							<img src="../media/icons/warning-icon.png" alt=""
+								style="width: 70px; height: 70px; margin-top: 20px;">
+						</div>
+						<div class="col-md-8 col-sm-8">
+							<h3>是否确认删除该条仓库信息</h3>
+							<p>(注意：若该仓库已经有出入库记录或仓存信息，则该仓库信息将不能删除成功。如需删除该仓库的信息，请保证该仓库没有出入库和仓存信息关联)</p>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default" type="button" data-dismiss="modal">
+						<span>取消</span>
+					</button>
+					<button class="btn btn-danger" type="button" @click="confirm_delete()">
+						<span>确认删除</span>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- 编辑库存信息模态框 -->
+	<div id="edit_modal" class="modal fade" table-index="-1" role="dialog"
+		aria-labelledby="myModalLabel" aria-hidden="true"
+		data-backdrop="static">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button class="close" type="button" data-dismiss="modal"
+						aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="myModalLabel">编辑库存信息</h4>
+				</div>
+				<div class="modal-body">
+					<!-- 模态框的内容 -->
+					<div class="row">
+						<div class="col-md-1 col-sm-1"></div>
+						<div class="col-md-8 col-sm-8">
+							<form class="form-horizontal" role="form" id="repository_form_edit"
+								style="margin-top: 25px">
+								<div class="form-group">
+									<label for="" class="control-label col-md-4 col-sm-4"> <span>物资ID：</span>
+									</label>
+									<div class="col-md-8 col-sm-8">
+										<input type="text" class="form-control" v-model="good_id_modal" readonly="readonly"></label>
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="" class="control-label col-md-4 col-sm-4"> <span>物资名称：</span>
+									</label>
+									<div class="col-md-8 col-sm-8">
+										<input type="text" class="form-control" v-model="product_name_modal" placeholder="物资名称">
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="" class="control-label col-md-4 col-sm-4"> <span>物资分类：</span>
+									</label>
+									<div class="col-md-8 col-sm-8">
+										<select class="form-control" v-model="good_model_modal" @change="change_modelType($event)">
+											<option v-for="(value,key) in goodModelMap" :value="key" v-text="value"></option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="control-label col-md-4 col-sm-4"> <span>用途：</span>
+									</label>
+									<div class="col-md-8 col-sm-8">
+										<select class="form-control" v-model="good_type_modal" @change="change_yongtu($event)">
+											<option v-for="(value,key) in goodTypeMap" :value="key" v-text="value"></option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="" class="control-label col-md-4 col-sm-4"> <span>规格：</span>
+									</label>
+									<div class="col-md-8 col-sm-8">
+										<input type="text" class="form-control" v-model="good_size_modal" placeholder="规格">
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="" class="control-label col-md-4 col-sm-4"> <span>单位：</span>
+									</label>
+									<div class="col-md-8 col-sm-8">
+										<select class="form-control" v-model="good_danwei_modal" @change="change_danwei($event)">
+											<option v-for="(value,key) in goodUnitMap" :value="key" v-text="value"></option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="" class="control-label col-md-4 col-sm-4"> <span>单价/元：</span>
+									</label>
+									<div class="col-md-8 col-sm-8">
+										<input type="text" class="form-control" v-model="good_price_modal" placeholder="单价/元">
+									</div>
+								</div>
+								<div class="form-group">	
+									<label for="" class="control-label col-md-4 col-sm-4"> <span>出入库数量：</span>
+									</label>
+									<div class="col-md-8 col-sm-8">
+										<input type="text" class="form-control" v-model="good_num_modal" placeholder="出入库数量">
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="" class="control-label col-md-4 col-sm-4"> <span>供应商：</span>
+									</label>
+									<div class="col-md-8 col-sm-8">
+										<input type="text" class="form-control" v-model="good_supplier_modal" placeholder="供应商">
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="" class="control-label col-md-4 col-sm-4"> <span>所属仓库：</span>
+									</label>
+									<div class="col-md-8 col-sm-8">
+										<select class="form-control" v-model="good_belongstore_modal" @change="change_belong_tore($event)">
+											<option v-for="(value,key) in storeMap" :value="key" v-text="value"></option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="" class="control-label col-md-4 col-sm-4"> <span>备注：</span>
+									</label>
+									<div class="col-md-8 col-sm-8">
+										<textarea class="form-control" v-model="good_beizhu_modal" placeholder="备注"></textarea>
+									</div>
+								</div>
+							</form>
+						</div>
+						<div class="col-md-1 col-sm-1"></div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default" type="button" data-dismiss="modal">
+						<span>取消</span>
+					</button>
+					<button class="btn btn-success" type="button" @click="confirm_update()">
+						<span>确认更改</span>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+	<script src="../js/vue.js"></script>
+	<script src="../js/axios.min.js"></script>
+	<script>
+		const app = new Vue({
+			el:"#app",
+			data:{
+				token:"",
+				product_name:"",		//获取输入框中物资名称
+				goodModelSelected:"",	//获取下拉框中的物资分类
+				goodTypeSelected:"",	//获取下拉框中物资用途
+				storeGoodList:[],	//仓库物资列表
+				goodModelMap:[],	// 货物分类，如低值易耗或固定资产
+				goodTypeMap:[],		// 物资用途：办公、保洁、防护等
+				goodUnitMap:[],		// 物资单位
+				storedTypeMap:[],	// 仓库类型：平房仓库、楼房仓库等
+				storeStatusMap:[],	// 仓库状态：满载、可用
+				storeMap:[],
+
+				product_name_modal:"",
+				good_model_modal:"",
+				good_size_modal:"",
+				good_supplier_modal:"",
+				good_type_modal:"",
+				good_danwei_modal:"",
+				good_price_modal:"",
+				good_beizhu_modal:"",
+				good_num_modal:"",	//出入库数量
+				good_belongstore_modal:"",
+				good_id_modal:"",
+
+				delete_row_index:"",	//删除行索引
+				// 分页参数
+				pageIndex:1,
+				pageSize:1,
+				page_data:[],		//包含总页数，当前页数，页面显示条数等
+			},
+			methods: {
+				getReo(){		//获取仓库中物资信息
+					axios.post("http://localhost:8080/SMS/store/queryStoreKucunList",
+					{operateNo:"1001",goodName:this.product_name, pageIndex:this.pageIndex, pageSize:this.pageSize,goodType:this.goodTypeSelected, traceLogId:"111111"},{headers: {'token': this.token}}).then(res=>{
+						console.log(res)
+						this.storeGoodList = res.data.result.list;
+						this.page_data = res.data.result;
+					})
+				},
+				getStoreEnum(){		//获取下拉枚举值
+					axios.post("http://localhost:8080/SMS/enums/storeEnum",{operateNo:"1001", traceLogId:"111111"},{headers: {'token': this.token}}).then(res=>{
+						console.log(res)
+						this.goodModelMap = res.data.result.goodModelMap;
+						this.goodTypeMap = res.data.result.goodTypeMap;
+						this.goodUnitMap = res.data.result.goodUnitMap
+						this.storedTypeMap = res.data.result.storedTypeMap
+						this.storeStatusMap = res.data.result.storeStatusMap
+						this.storeMap = res.data.result.storeMap;
+					});	
+				},
+				changeGoodModel(event){		//改变搜索时的，物资分类下拉选项触发
+					this.goodModelSelected = event.target.value;
+					console.log(this.goodModelSelected)
+				},
+				changeGoodType(event){		//改变搜索时的，物资用途下拉选项触发
+					this.goodTypeSelected = event.target.value;
+					console.log(this.goodTypeSelected)
+				},
+				change_modelType(event){		//模态框中，改变物资用途下拉选项触发
+					this.good_model_modal = event.target.value;
+					console.log(this.good_model_modal)
+				},
+				change_yongtu(event){		//模态框中，改变物资用途下拉选项触发
+					this.good_type_modal = event.target.value;
+					console.log(this.good_type_modal)
+				},
+				change_danwei(event){		//模态框中，改变物资单位下拉选项触发
+					this.good_danwei_modal = event.target.value;
+					console.log(this.good_danwei_modal)
+				},
+				change_belong_tore(event){		//模态框中，改变物资单位下拉选项触发
+					this.good_belongstore_modal = event.target.value;
+					console.log(this.good_belongstore_modal)
+				},
+				edit(index){			//每行操作中编辑按钮触发
+					console.log(index);
+					this.good_id_modal = this.storeGoodList[index].id;
+					this.product_name_modal = this.storeGoodList[index].goodName;
+					this.good_model_modal = this.storeGoodList[index].goodModel
+					this.good_size_modal= this.storeGoodList[index].goodSize
+					this.good_type_modal = this.storeGoodList[index].goodType;
+					this.good_supplier_modal = this.storeGoodList[index].goodSupply;
+					this.good_danwei_modal = this.storeGoodList[index].goodUnits;
+					this.good_price_modal = this.storeGoodList[index].goodValue;
+					this.good_beizhu_modal = this.storeGoodList[index].remark;
+					this.good_belongstore_modal = this.storeGoodList[index].goodBelongStore;
+					this.good_num_modal = this.storeGoodList[index].goodNum;
+				},
+				confirm_update(){		// 模态框中确认修改
+					axios("",{}).then(res =>{
+
+					})
+					$('.modal').map(function () {
+						if (!$(this).is(":hidden")){
+							$(this).modal('hide');
+						}
+                	});
+				},
+				deleteRow(index){
+					this.delete_row_index = index;
+				},
+				confirm_delete(){	// 模态框中确认删除
+					axios.post("",{operateNo:"1001", traceLogId:"111111"},{headers: {'token': this.token}}).then(res=>{
+						console.log(res)
+					});
+					$('.modal').map(function () {
+						if (!$(this).is(":hidden")){
+							$(this).modal('hide');
+						}
+                	});
+				},
+				// 分页查询
+				searchPrevious(){
+					alert("----------")
+				},
+				searchNext(){
+					this.page_now += 1;
+					alert("+++++++++++")
+				},
+				searchPageIndex(page){
+					alert(page)
+				},
+			},
+			created () {
+				this.token = parent.window.document.getElementById("myiframe").getAttribute("value");
+				this.getReo();
+				this.getStoreEnum();
+			},
+		});
+	</script>
+</body>
+</html>
