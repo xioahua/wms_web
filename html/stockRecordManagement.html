@@ -112,13 +112,13 @@
             </div>
             <!-- 底部分页 -->
                 <div class="row">
-                    <div class="col-sm-4 col-sm-offset-4">
+                    <div class="col-sm-5 col-sm-offset-5">
                         <ul class="pagination">
-                            <li><a href="#" v-bind:class="pageIndex==1?'btn disabled':''"  @click="searchPrevious()" data-toggle="modal">&laquo;</a></li>
-                            <li v-bind:class="pageIndex==page_data.pageIndex?'active':''" v-for="page in page_data.pages">
-                                <a href="#" v-text="page" @click="searchPageIndex(page)" data-toggle="modal"></a>
+                            <li><span v-bind:class="pageIndex==1?'btn disabled':'btn'"  @click="searchPrevious()" data-toggle="modal">&laquo;</span></li>
+                            <li v-bind:class="pageIndex==page?'active':''" v-for="page in page_data.pages">
+                                <span v-text="page" class="btn" @click="searchPageIndex(page)" data-toggle="modal"></span>
                             </li>
-						    <li><a href="#" v-bind:class="pageIndex >= page_data.pages?'btn disabled':''"  @click="searchNext()" data-toggle="modal">&raquo;</a></li>
+                            <li><span v-bind:class="pageIndex >= page_data.pages?'btn disabled':'btn'"  @click="searchNext()" data-toggle="modal">&raquo;</span></li>
                         </ul>
                     </div>
                 </div>
@@ -606,7 +606,8 @@
             },
             queryInOurOutRecord(){      // 查询出入库列表
                 axios.post("http://localhost:8080/SMS/store/queryInOurOutRecordList", 
-                {operateNo:"1001", traceLogId:"111111",warehousingBelongStore:this.storeNameSelected, warehousingType: this.in_or_out},{headers: {'token': this.token}}).then(res =>{
+                {operateNo:"1001", traceLogId:"111111",warehousingBelongStore:this.storeNameSelected, warehousingType: this.in_or_out,
+                pageSize:this.pageSize,pageIndex:this.pageIndex,traceLogId:"11111111"},{headers: {'token': this.token}}).then(res =>{
                     console.log(res)
                     this.queryInOurOutRecordList = res.data.result.list;
                     this.page_data = res.data.result;
@@ -803,14 +804,20 @@
             },
             // 分页查询
             searchPrevious(){
-                alert("----------")
+                if (this.pageIndex > 1) {
+                    this.pageIndex -= 1;
+                    this.queryInOurOutRecord()
+                }
             },
             searchNext(){
-                this.page_now += 1;
-                alert("+++++++++++")
+                if (this.pageIndex < this.page_data.pages) {
+                    this.pageIndex += 1;
+                    this.queryInOurOutRecord()
+                }
             },
             searchPageIndex(page){
-                alert(page)
+                this.pageIndex = page;
+                this.queryInOurOutRecord()
             },
         },
         created () {

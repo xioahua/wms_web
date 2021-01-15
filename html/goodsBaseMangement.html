@@ -95,13 +95,11 @@
 			<div class="row">
 				<div class="col-md-offset-5 col-sm-offset-5">
 					<ul class="pagination">
-						<li><a href="#">&laquo;</a></li>
-						<li class="active"><a href="#">1</a></li>
-						<li class=""><a href="#">2</a></li>
-						<li><a href="#">3</a></li>
-						<li><a href="#">4</a></li>
-						<li><a href="#">5</a></li>
-						<li><a href="#">&raquo;</a></li>
+						<li><span v-bind:class="pageIndex==1?'btn disabled':'btn'"  @click="searchPrevious()" data-toggle="modal">&laquo;</span></li>
+						<li v-bind:class="pageIndex==page?'active':''" v-for="page in page_data.pages">
+							<span v-text="page" class="btn" @click="searchPageIndex(page)" data-toggle="modal"></span>
+						</li>
+						<li><span v-bind:class="pageIndex >= page_data.pages?'btn disabled':'btn'"  @click="searchNext()" data-toggle="modal">&raquo;</span></li>
 					</ul>
 				</div>
 			</div>
@@ -620,6 +618,10 @@
 				file:"",
             	fileName: "",
 				selectedInOutNumber:"",
+				// 分页参数
+				pageIndex:1,
+				pageSize:1,
+				page_data:[],		//包含总页数，当前页数，页面显示条数等
 			},
 			methods: {
 				//按物资类型搜索
@@ -628,9 +630,11 @@
 					console.log(this.goods_type)
 				},
 				getReo(){		//获取仓库中物资信息
-					axios.post("http://localhost:8080/SMS/store/queryStoreGoodList",{operateNo:"1001", goodName:this.product_name,goodType:this.goods_type,traceLogId:"111111"},{headers: {'token': this.token}}).then(res=>{
+					axios.post("http://localhost:8080/SMS/store/queryStoreGoodList",{operateNo:"1001", goodName:this.product_name,
+					goodType:this.goods_type,pageSize:this.pageSize,pageIndex:this.pageIndex,traceLogId:"111111"},{headers: {'token': this.token}}).then(res=>{
 						this.storeGoodList = res.data.result.list;
 						console.log(this.storeGoodList)
+						this.page_data = res.data.result;
 					})
 				},
 				getStoreEnum(){		//获取下拉枚举值
@@ -818,7 +822,24 @@
 					} else {
 						toastr.error("查询物资信息为空，无需导出！");
 					}
-            	},
+				},
+				// 分页查询
+				searchPrevious(){
+					if (this.pageIndex > 1) {
+						this.pageIndex -= 1;
+						this.getReo()
+					}
+				},
+				searchNext(){
+					if (this.pageIndex < this.page_data.pages) {
+						this.pageIndex += 1;
+						this.getReo()
+					}
+				},
+				searchPageIndex(page){
+					this.pageIndex = page;
+					this.getReo()
+				},
 			},
 			created () {
 				this.token = parent.window.document.getElementById("myiframe").getAttribute("value");

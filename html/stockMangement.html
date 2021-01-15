@@ -84,13 +84,13 @@
 					</select>
 					<div>条&emsp;共<span v-text="page_data.total"></span>条记录</div>
 				</div> -->
-				<div class="col-md-offset-3 col-sm-offset-3">
+				<div class="col-md-offset-5 col-sm-offset-5">
 					<ul class="pagination">
-						<li><a href="#" v-bind:class="pageIndex==1?'btn disabled':''"  @click="searchPrevious()" data-toggle="modal">&laquo;</a></li>
-						<li v-bind:class="pageIndex==page_data.pageIndex?'active':''" v-for="page in page_data.pages">
-							<a href="#" v-text="page" @click="searchPageIndex(page)" data-toggle="modal"></a>
+						<li v-show="page_data.pages>0"><span v-bind:class="pageIndex==1?'btn disabled':'btn'"  @click="searchPrevious()" data-toggle="modal">&laquo;</span></li>
+						<li v-bind:class="pageIndex==page?'active':''" v-for="page in page_data.pages">
+							<span v-text="page" class="btn" @click="searchPageIndex(page)" data-toggle="modal"></span>
 						</li>
-						<li><a href="#" v-bind:class="pageIndex >= page_data.pages?'btn disabled':''"  @click="searchNext()" data-toggle="modal">&raquo;</a></li>
+						<li v-show="page_data.pages>0"><span v-bind:class="pageIndex >= page_data.pages?'btn disabled':'btn'"  @click="searchNext()" data-toggle="modal">&raquo;</span></li>
 					</ul>
 				</div>
 			</div>
@@ -371,14 +371,20 @@
 				},
 				// 分页查询
 				searchPrevious(){
-					alert("----------")
+					if (this.pageIndex > 1) {
+						this.pageIndex -= 1;
+						this.getReo()
+					}
 				},
 				searchNext(){
-					this.page_now += 1;
-					alert("+++++++++++")
+					if (this.pageIndex < this.page_data.pages) {
+						this.pageIndex += 1;
+						this.getReo()
+					}
 				},
 				searchPageIndex(page){
-					alert(page)
+					this.pageIndex = page;
+					this.getReo()
 				},
 			},
 			created () {

@@ -99,15 +99,13 @@
 				</div>
 				<!-- 底部分页 -->
 				<div class="row">
-					<div class="col-sm-4 col-sm-offset-4">
+					<div class="col-sm-5 col-sm-offset-5">
 						<ul class="pagination">
-							<li><a href="#">&laquo;</a></li>
-							<li class="active"><a href="#">1</a></li>
-							<li><a href="#">2</a></li>
-							<li><a href="#">3</a></li>
-							<li><a href="#">4</a></li>
-							<li><a href="#">5</a></li>
-							<li><a href="#">&raquo;</a></li>
+							<li><span v-bind:class="pageIndex==1?'btn disabled':'btn'"  @click="searchPrevious()" data-toggle="modal">&laquo;</span></li>
+							<li v-bind:class="pageIndex==page?'active':''" v-for="page in page_data.pages">
+								<span v-text="page" class="btn" @click="searchPageIndex(page)" data-toggle="modal"></span>
+							</li>
+							<li><span v-bind:class="pageIndex >= page_data.pages?'btn disabled':'btn'"  @click="searchNext()" data-toggle="modal">&raquo;</span></li>
 						</ul>
 					</div>
 				</div>
@@ -364,14 +362,19 @@
 				store_area_editModal:"",
 				store_desc_editModal:"",
 				store_remark_editModal:"",
+				// 分页参数
+				pageIndex:1,
+				pageSize:1,
+				page_data:[],		//包含总页数，当前页数，页面显示条数等
 			},
 			methods: {
 				queryStore(){
 					axios.post("http://localhost:8080/SMS/store/queryStore",
 						{operateNo:"1001", storeName:this.storeName,storeAddress:this.storeAddress,
-						storeStatus:this.select_Full_Avaliable,traceLogId:"111111"},{headers:{'token': this.token}}).then(res=>{
+						storeStatus:this.select_Full_Avaliable,pageSize:this.pageSize,pageIndex:this.pageIndex,traceLogId:"111111"},{headers:{'token': this.token}}).then(res=>{
 						this.storeLists = res.data.result.list
 						console.log(res)
+						this.page_data = res.data.result;
 					})
 				},
 				change_store_type_addModal(event){
@@ -466,6 +469,23 @@
 							toastr.success("删除" + this.storeLists[this.delete_row_index].storeName + "失败，请重试！");
 						}
 					});	
+				},
+				// 分页查询
+				searchPrevious(){
+					if (this.pageIndex > 1) {
+						this.pageIndex -= 1;
+						this.queryStore()
+					}
+				},
+				searchNext(){
+					if (this.pageIndex < this.page_data.pages) {
+						this.pageIndex += 1;
+						this.queryStore()
+					}
+				},
+				searchPageIndex(page){
+					this.pageIndex = page;
+					this.queryStore()
 				},
 			},
 			created () {
