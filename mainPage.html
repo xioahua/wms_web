@@ -268,7 +268,7 @@
             signOut(){
                 axios.get("http://localhost:8080/SMS/account/logout?token="+this.token).then(res => {
                     console.log(res);
-                    if(res.data.success == true){
+                    if(res.data.success == true || res.data.errorCode == "403"){
                         this.userId = "";
                         this.userName = "";
                         this.token = "";

@@ -659,7 +659,7 @@
             },
             getStoreEnum(){		//获取下拉枚举值
                 axios.post("http://localhost:8080/SMS/enums/storeEnum",{operateNo:"1001", traceLogId:"111111"},{headers: {'token': this.token}}).then(res=>{
-                    console.log(res)
+                    console.log(res.data.errorCode)
                     this.goodMap = res.data.result.goodMap;
                     this.storeList = res.data.result.storeMap;
                     this.goodModelMap = res.data.result.goodModelMap;
