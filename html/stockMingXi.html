@@ -77,7 +77,7 @@
                             <th>ID</th>
                             <th>物资名称</th>
                             <th>规格</th>
-                            <th>用途类别</th>
+                            <th>物资分类</th>
                             <th>单位</th>
                             <th>需求量</th>
                             <th>实际出入库量</th>
@@ -154,36 +154,25 @@
                                 <label for="" class="control-label col-md-4 col-sm-4"> <span>物资名称：</span>
                                 </label>
                                 <div class="col-md-8 col-sm-8">
-                                    <select class="form-control" v-model="addModal_good_id" @change="change_addModal_good_id($event)">
+                                    <select class="form-group" v-model="addModal_good_id" @change="change_addModal_good_id($event)">
                                         <option value="">请选择物资名称</option>
-                                        <option v-for="(value,key) in goodMap" :value="key" v-text="value"></option>
+                                        <option v-for="(value,key) in goodMap" :value="value" v-text="value"></option>
                                     </select>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="" class="control-label col-md-4 col-sm-4"> <span>用途类别：</span>
+                                <label for="" class="control-label col-md-4 col-sm-4"> <span>物资分类：</span>
                                 </label>
                                 <div class="col-md-8 col-sm-8">
                                     <div class="dropdown">
                                         <select class="form-control" v-model="addModal_good_type" @change="change_addModal_good_type($event)">
-                                            <option value="">请选择用途类别</option>
+                                            <option value="">请选择分类</option>
                                             <option v-for="(value,key) in goodTypeMap" :value="key" v-text="value"></option>
                                         </select>
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="" class="control-label col-md-4 col-sm-4"> <span>分类：</span>
-                                </label>
-                                <div class="col-md-8 col-sm-8">
-                                    <div class="dropdown">
-                                        <select class="form-control" v-model="addModal_good_model"  @change="change_addModal_good_model($event)">
-                                            <option value="">请选择分类</option>
-                                            <option v-for="(value,key) in goodModelMap" :value="key" v-text="value"></option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
+                            
                             <div class="form-group">
                                 <label class="control-label col-md-4 col-sm-4"><span>物资供应商：</span>
                                 </label>
@@ -488,7 +477,7 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="control-label col-md-4 col-sm-4"> <span>用途类别：</span>
+                                <label class="control-label col-md-4 col-sm-4"> <span>物资分类：</span>
                                 </label>
                                 <div class="col-md-8 col-sm-8">
                                     <select class="form-control" v-model="editModal_good_type">
@@ -589,7 +578,6 @@
             singleStoreInOrOutList:[],
             goodMap:[],         // 物资id及名称map
             storeList:[],       // 仓库名下拉选项
-            goodModelMap:[],	// 货物分类，如低值易耗或固定资产
             goodTypeMap:[],		// 物资用途：办公、保洁、防护等
             goodUnitMap:[],		// 物资单位
             storedTypeMap:[],	// 仓库类型：平房仓库、楼房仓库等
@@ -604,7 +592,6 @@
             addModal_inOutNumber:"",
             addModal_good_id:"",
             addModal_good_type:"",
-            addModal_good_model:"",
             addModal_good_supllier:"",
             addModal_good_unit:"",
             addModal_good_size:"",
@@ -662,7 +649,6 @@
                     console.log(res.data.errorCode)
                     this.goodMap = res.data.result.goodMap;
                     this.storeList = res.data.result.storeMap;
-                    this.goodModelMap = res.data.result.goodModelMap;
                     this.goodTypeMap = res.data.result.goodTypeMap;
                     this.goodUnitMap = res.data.result.goodUnitMap
                     this.storedTypeMap = res.data.result.storedTypeMap
@@ -684,17 +670,14 @@
             change_addModal_good_type(event){
                 this.addModal_good_type = event.target.value;
             },
-            change_addModal_good_model(event){
-                this.addModal_good_model = event.target.value;
-            },
             change_addModal_good_unit(event){
                 this.addModal_good_unit = event.target.value;
             },
             add_mingxi(){
                 axios.post("http://localhost:8080/SMS/store/singleStoreInOrOutAdd",{operateNo:"1001",goodId:this.addModal_good_id,
-                inOutNumber:this.addModal_inOutNumber,goodType:this.addModal_good_type,goodModel:this.addModal_good_model,
-                goodUnits:this.addModal_good_unit,goodSize:this.addModal_good_size,goodValue:this.addModal_good_value,
-                goodNeedNum:this.addModal_good_NeedNum,goodActualNum:this.addModal_good_ActualNum,remark:this.addModal_good_remark,
+                inOutNumber:this.addModal_inOutNumber,goodType:this.addModal_good_type, goodUnits:this.addModal_good_unit,
+                goodSize:this.addModal_good_size,goodValue:this.addModal_good_value,goodNeedNum:this.addModal_good_NeedNum,
+                goodActualNum:this.addModal_good_ActualNum,remark:this.addModal_good_remark,
                 goodName:this.addModal_good_name,goodStore:this.addModal_good_store,traceLogId:"1111"},{headers: {'token': this.token}}).then(res=>{
                     console.log(res)
                     if(res.data.success == true){

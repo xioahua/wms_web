@@ -66,7 +66,7 @@
 							<th>物资名称</th>
 							<th>规格</th>
 							<th>供应商</th>
-							<th>用途</th>
+							<th>物资分类</th>
 							<th>单位</th>
 							<th>单价/元</th>
 							<th>备注</th>
@@ -129,16 +129,7 @@
 										<input type="text" class="form-control" v-model="addModal_good_name" placeholder="物资名称">
 									</div>
 								</div>
-								<div class="form-group">
-									<label for="" class="control-label col-md-4 col-sm-4"> <span>分类：</span>
-									</label>
-									<div class="col-md-8 col-sm-8">
-										<select class="form-control" v-model="addModal_good_model" @change="change_addModal_goods_model($event)">
-											<option value="">选择物资分类</option>
-											<option v-for="(value,key) in goodModelMap" :value="key" v-text="value"></option>
-										</select>
-									</div>
-								</div>
+
 								<div class="form-group">
 									<label for="" class="control-label col-md-4 col-sm-4"> <span>规格：</span>
 									</label>
@@ -154,11 +145,11 @@
 									</div>
 								</div>
 								<div class="form-group">
-									<label for="" class="control-label col-md-4 col-sm-4"> <span>用途类别：</span>
+									<label for="" class="control-label col-md-4 col-sm-4"> <span>物资分类：</span>
 									</label>
 									<div class="col-md-8 col-sm-8">
 										<select class="form-control" v-model="addModal_good_type" @change="change_addModal_goods_type($event)">
-											<option value="">请选择物资用途</option>
+											<option value="">请选择物资分类</option>
 											<option v-for="(value,key) in goodTypeMap" :value="key" v-text="value"></option>
 										</select>
 									</div>
@@ -502,14 +493,6 @@
 									</div>
 								</div>
 								<div class="form-group">
-									<label for="" class="control-label col-md-4 col-sm-4"> <span>分类：</span></label>
-									<div class="col-md-8 col-sm-8">
-										<select class="form-control" v-model="good_model_editModal" @change="change_good_model_editModal($event)">
-											<option v-for="(value,key) in goodModelMap" :value="key" v-text="value"></option>
-										</select>
-									</div>
-								</div>
-								<div class="form-group">
 									<label for="" class="control-label col-md-4 col-sm-4"> <span>规格：</span></label>
 									<div class="col-md-8 col-sm-8">
 										<input type="text" class="form-control" v-model="good_size_editModal" placeholder="规格">
@@ -525,10 +508,10 @@
 									</div>
 								</div>
 								<div class="form-group">
-									<label for="" class="control-label col-md-4 col-sm-4"> <span>用途：</span></label>
+									<label for="" class="control-label col-md-4 col-sm-4"> <span>物资分类：</span></label>
 									<div class="col-md-8 col-sm-8">
 										<select class="form-control" v-model="good_type_editModal" @change="change_good_type_editModal($event)">
-											<option value="">选择用途</option>
+											<option value="">选择物资分类</option>
 											<option v-for="(value,key) in goodTypeMap" :value="key" v-text="value"></option>
 										</select>
 									</div>
@@ -583,7 +566,6 @@
 				supplier:"",
 				goods_type:"",
 				storeGoodList:[],
-				goodModelMap:[],	// 货物分类，如低值易耗或固定资产
 				goodTypeMap:[],		// 物资用途：办公、保洁、防护等
 				goodUnitMap:[],		// 物资单位
 				storedTypeMap:[],	// 仓库类型：平房仓库、楼房仓库等
@@ -592,7 +574,6 @@
 				//编辑模态框中的参数
 				good_id_editModal:"",
 				good_name_editModal:"",
-				good_model_editModal:"",
 				good_size_editModal:"",
 				good_supllier_editModal:"",
 				good_type_editModal:"",
@@ -603,7 +584,6 @@
 				delete_row_id:"",
 				//物资添加模态框参数
 				addModal_good_name:"",
-				addModal_good_model:"",
 				addModal_good_size:"",
 				addModal_good_type:"",
 				addModal_good_supllier:"",
@@ -639,7 +619,6 @@
 				},
 				getStoreEnum(){		//获取下拉枚举值
 					axios.post("http://localhost:8080/SMS/enums/storeEnum",{operateNo:"1001", traceLogId:"111111"},{headers: {'token': this.token}}).then(res=>{
-						this.goodModelMap = res.data.result.projectType;
 						this.goodTypeMap = res.data.result.goodTypeMap;
 						this.goodUnitMap = res.data.result.goodUnitMap
 						this.storedTypeMap = res.data.result.storedTypeMap
@@ -650,7 +629,7 @@
 				},
 				add_goods(){
 					axios.post("http://localhost:8080/SMS/store/addStoreGood",{operateNo:"1001",goodName:this.addModal_good_name,
-					goodModel:this.addModal_good_model, goodSize:this.addModal_good_size,goodType:this.addModal_good_type,
+					goodSize:this.addModal_good_size,goodType:this.addModal_good_type,
 					supplyId:this.addModal_good_supllier,goodUnits:this.addModal_good_unit,goodValue:this.addModal_good_value,
 					remark:this.addModal_good_remark},{headers: {'token': this.token}}).then(res =>{
 						console.log(res);
@@ -668,9 +647,6 @@
 					})
             	},
 				//新增物资模态框中的下拉改变事件
-				change_addModal_goods_model($event){
-					this.addModal_good_model = event.target.value;
-				},
 				change_addModal_goods_type($event){
 					this.addModal_good_type = event.target.value;
 				},
@@ -683,7 +659,6 @@
 						console.log(res)
 						this.good_id_editModal = res.data.result.id;
 						this.good_name_editModal = res.data.result.goodName;
-						this.good_model_editModal = res.data.result.goodModel;
 						this.good_size_editModal = res.data.result.goodSize;
 						this.good_supllier_editModal = res.data.result.goodSupply;
 						this.good_type_editModal = res.data.result.goodType;
@@ -693,9 +668,6 @@
 					})
 				},
 				//编辑模态框中下拉选择事件
-				change_good_model_editModal(event){
-					this.good_model_editModal = event.target.value;
-				},
 				change_good_supllier_editModal(event){
 					this.good_supllier_editModal = event.target.value;
 				},
@@ -706,7 +678,7 @@
 					this.good_good_unit_editModal = event.target.value;
 				},
 				confirm_update(){
-					axios.post("http://localhost:8080/SMS/store/editStoreGood",{operateNo:"1001",id:this.good_id_editModal,goodName:this.good_name_editModal,goodModel:this.good_model_editModal,
+					axios.post("http://localhost:8080/SMS/store/editStoreGood",{operateNo:"1001",id:this.good_id_editModal,goodName:this.good_name_editModal,
 					goodSize:this.good_size_editModal,supplyId:this.good_supllier_editModal,goodType:this.good_type_editModal,goodUnits:this.good_unit_editModal,
 					goodValue:this.good_price_editModal,remark:this.good_remark_editModal},{headers: {'token': this.token}}).then(res=>{
 						console.log(res);

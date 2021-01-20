@@ -26,7 +26,7 @@
 				<div class="form-group">
 					<label for="goods_type">物资分类：</label>
 					<select class="form-control" v-model="goodTypeSelected" @change="changeGoodType($event)">
-						<option value="">所有用途</option>
+						<option value="">所有分类</option>
 						<option v-for="(value,key) in goodTypeMap" :value="key" v-text="value"></option>
 					</select>
 				</div>
@@ -42,7 +42,6 @@
 							<th>物资ID</th>
 							<th>物资名称</th>
 							<th>分类</th>
-							<th>用途</th>
 							<th>规格</th>
 							<th>单位</th>
 							<th>单价/元</th>
@@ -55,7 +54,6 @@
 							<tr v-for="item,index in storeGoodList" :key="index">
 								<td v-text="item.id"></td>
 								<td v-text="item.goodName"></td>
-								<td v-text="item.goodModel"></td>
 								<td v-text="item.goodType"></td>
 								<td v-text="item.goodSize"></td>
 								<td v-text="item.goodUnits"></td>
@@ -164,16 +162,7 @@
 									</div>
 								</div>
 								<div class="form-group">
-									<label for="" class="control-label col-md-4 col-sm-4"> <span>物资分类：</span>
-									</label>
-									<div class="col-md-8 col-sm-8">
-										<select class="form-control" v-model="good_model_modal" @change="change_modelType($event)">
-											<option v-for="(value,key) in goodModelMap" :value="key" v-text="value"></option>
-										</select>
-									</div>
-								</div>
-								<div class="form-group">
-									<label class="control-label col-md-4 col-sm-4"> <span>用途：</span>
+									<label class="control-label col-md-4 col-sm-4"> <span>物资分类：</span>
 									</label>
 									<div class="col-md-8 col-sm-8">
 										<select class="form-control" v-model="good_type_modal" @change="change_yongtu($event)">
@@ -260,10 +249,8 @@
 			data:{
 				token:"",
 				product_name:"",		//获取输入框中物资名称
-				goodModelSelected:"",	//获取下拉框中的物资分类
 				goodTypeSelected:"",	//获取下拉框中物资用途
 				storeGoodList:[],	//仓库物资列表
-				goodModelMap:[],	// 货物分类，如低值易耗或固定资产
 				goodTypeMap:[],		// 物资用途：办公、保洁、防护等
 				goodUnitMap:[],		// 物资单位
 				storedTypeMap:[],	// 仓库类型：平房仓库、楼房仓库等
@@ -300,17 +287,12 @@
 				getStoreEnum(){		//获取下拉枚举值
 					axios.post("http://localhost:8080/SMS/enums/storeEnum",{operateNo:"1001", traceLogId:"111111"},{headers: {'token': this.token}}).then(res=>{
 						console.log(res)
-						this.goodModelMap = res.data.result.goodModelMap;
 						this.goodTypeMap = res.data.result.goodTypeMap;
 						this.goodUnitMap = res.data.result.goodUnitMap
 						this.storedTypeMap = res.data.result.storedTypeMap
 						this.storeStatusMap = res.data.result.storeStatusMap
 						this.storeMap = res.data.result.storeMap;
 					});	
-				},
-				changeGoodModel(event){		//改变搜索时的，物资分类下拉选项触发
-					this.goodModelSelected = event.target.value;
-					console.log(this.goodModelSelected)
 				},
 				changeGoodType(event){		//改变搜索时的，物资用途下拉选项触发
 					this.goodTypeSelected = event.target.value;
@@ -336,7 +318,6 @@
 					console.log(index);
 					this.good_id_modal = this.storeGoodList[index].id;
 					this.product_name_modal = this.storeGoodList[index].goodName;
-					this.good_model_modal = this.storeGoodList[index].goodModel
 					this.good_size_modal= this.storeGoodList[index].goodSize
 					this.good_type_modal = this.storeGoodList[index].goodType;
 					this.good_supplier_modal = this.storeGoodList[index].goodSupply;
