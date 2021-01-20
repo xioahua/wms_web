@@ -762,7 +762,9 @@
 										this.stepNumNow = 1
 									}
 								});
-								toastr.success("导入" + this.fileName + "成功！");
+								toastr.success("已解析"+response.data.result.avaliableNum+"条,导入成功"+ response.data.result.totalNum+"条,已存在"+response.data.result.existNum+"条");
+								this.file = '';
+								this.fileName = ''
 							}else{
 								toastr.error(response.data.errorMsg);
 							}
