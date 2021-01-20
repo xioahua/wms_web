@@ -227,7 +227,7 @@
                 <div class="modal-header">
                     <button class="close" type="button" data-dismiss="modal"
                         aria-hidden="true">&times;</button>
-                    <h4 class="modal-title" id="myModalLabel">导入出入库记录</h4>
+                    <h4 class="modal-title" id="myModalLabel">导入出入库记录明细</h4>
                 </div>
                 <div class="modal-body">
                     <div id="step1" v-show="show_step1" :style="{display:(stepNumNow==1?'block':'none')}">
@@ -235,7 +235,7 @@
                             <div class="col-md-1 col-sm-1"></div>
                             <div class="col-md-10 col-sm-10">
                                 <div>
-                                    <h4>第一步：选择出入库编号后点击下面的下载按钮，下载仓库信息电子表格</h4>
+                                    <h4>第一步：选择出入库编号后点击下面的下载按钮，下载导入电子表格模板</h4>
                                 </div>
                                 <div style="margin-top: 30px; margin-bottom: 15px">
                                     <a class="btn btn-info" :href="'http://localhost:8080/SMS/commons/fileSource/downInOrOutDetail?token=' + this.token"
@@ -251,7 +251,7 @@
                             <div class="col-md-1 col-sm-1"></div>
                             <div class="col-md-10 col-sm-10">
                                 <div>
-                                    <h4>第二步：请按照仓库信息电子表格中指定的格式填写需要添加的一个或多个仓库信息</h4>
+                                    <h4>第二步：请按照仓库信息电子表格中指定的格式填写需要添加的一个或多个记录信息</h4>
                                 </div>
                                 <div class="alert alert-info"
                                     style="margin-top: 10px; margin-bottom: 30px">
@@ -305,7 +305,7 @@
                 <div class="modal-header">
                     <button class="close" type="button" data-dismiss="modal"
                         aria-hidden="true">&times;</button>
-                    <h4 class="modal-title" id="myModalLabel">导出出入库记录</h4>
+                    <h4 class="modal-title" id="myModalLabel">导出出入库记录明细</h4>
                 </div>
                 <div class="modal-body">
                     <div class="row">
@@ -314,7 +314,7 @@
                                 style="width: 70px; height: 70px; margin-top: 20px;">
                         </div>
                         <div class="col-md-8 col-sm-8">
-                            <h3>是否确认导出出入库记录</h3>
+                            <h3>是否确认导出所选记录的出入库明细</h3>
                             <p>(注意：请确定要导出的出入库记录，导出的内容为当前列表的搜索结果)</p>
                         </div>
                     </div>
@@ -573,7 +573,7 @@
             edit_remark:"",
             // 分页参数
             pageIndex:1,
-            pageSize:1,
+            pageSize:10,
             page_data:[],		//包含总页数，当前页数，页面显示条数等
         },
         methods: {

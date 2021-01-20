@@ -72,7 +72,7 @@
     <script src="./js/md5.js"></script>		<!-- 使用MD5加密 -->
     <script src="./js/vue.js"></script>
     <script src="./js/jquery-2.2.3.min.js"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="./js/axios.min.js"></script>
     <script>
         //创建Vue实例
         const vue = new Vue({
@@ -89,7 +89,6 @@
                 // 点击更换验证码
                 changeImageCode(){
 					let date = new Date().getTime();
-					console.log(date)
 					axios.get("http://localhost:8080/SMS/account/checkCode/"+ date, {responseType:'blob'}).then(res=>{
 						console.log(res);
 						this.imageCodeSrc = window.URL.createObjectURL(res.data);
