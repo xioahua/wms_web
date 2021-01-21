@@ -764,7 +764,8 @@
 								});
 								toastr.success("已解析"+response.data.result.avaliableNum+"条,导入成功"+ response.data.result.totalNum+"条,已存在"+response.data.result.existNum+"条");
 								this.file = '';
-								this.fileName = ''
+								this.fileName = '',
+								this.getReo()
 							}else{
 								toastr.error(response.data.errorMsg);
 							}
@@ -811,14 +812,16 @@
 					}
 				},
 				searchPageIndex(page){
+					if(this.pageIndex != page){
 					this.pageIndex = page;
 					this.getReo()
+				}
 				},
 			},
 			created () {
 				this.token = parent.window.document.getElementById("myiframe").getAttribute("value");
-				this.getReo()
 				this.getStoreEnum()
+				this.getReo()
 			}
 		});
 	</script>

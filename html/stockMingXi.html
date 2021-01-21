@@ -105,12 +105,13 @@
                                     <button class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteWarning_modal" @click="edit_delete(item.detailId)">删除</button>
                                 </td>
                             </tr>
+                            <tr v-if="page_data.total==0"><td colspan="14">未查到数据</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
             <!-- 底部分页 -->
-            <div class="row">
+            <div class="row"  v-show="page_data.pages>0">
                 <div class="col-sm-5 col-sm-offset-5">
                     <ul class="pagination">
 						<li><span v-bind:class="pageIndex==1?'btn disabled':'btn'"  @click="searchPrevious()" data-toggle="modal">&laquo;</span></li>
@@ -154,7 +155,7 @@
                                 <label for="" class="control-label col-md-4 col-sm-4"> <span>物资名称：</span>
                                 </label>
                                 <div class="col-md-8 col-sm-8">
-                                    <select class="form-group" v-model="addModal_good_id" @change="change_addModal_good_id($event)">
+                                    <select class="form-control" v-model="addModal_good_id" @change="change_addModal_good_id($event)">
                                         <option value="">请选择物资名称</option>
                                         <option v-for="(value,key) in goodMap" :value="value" v-text="value"></option>
                                     </select>
@@ -738,8 +739,10 @@
                 }
             },
             searchPageIndex(page){
-                this.pageIndex = page;
-                this.singleStoreInOrOut()
+                if(this.pageIndex != page){
+                    this.pageIndex = page;
+                    this.queryStore()
+				}
             },
         },
         created () {

@@ -63,25 +63,13 @@
 								<td v-text="item.goodBelongStore"></td>
 								<td v-text="item.remark"></td>
 							</tr>
+							<tr v-if="page_data.total==0"><td colspan="14">未查到数据</td></tr>
 						</tbody>
 					</table>
 				</div>
 			</div>
 			<!-- 底部分页 -->
-			<div class="row">
-				<!-- <div class="col-sm-2" style="display: flex;align-items: center;">
-					<div>共<span v-text="page_data.pages"></span>页&emsp;每页</div>
-					<select onchange="">
-						<option value="10">10</option>
-						<option value="15">15</option>
-						<option selected="selected" value="20">20</option>
-						<option value="30">30</option>
-						<option value="40">40</option>
-						<option value="60">60</option>
-						<option value="100">100</option>
-					</select>
-					<div>条&emsp;共<span v-text="page_data.total"></span>条记录</div>
-				</div> -->
+			<div class="row" v-show="page_data.pages>0">
 				<div class="col-md-offset-5 col-sm-offset-5">
 					<ul class="pagination">
 						<li v-show="page_data.pages>0"><span v-bind:class="pageIndex==1?'btn disabled':'btn'"  @click="searchPrevious()" data-toggle="modal">&laquo;</span></li>
@@ -364,8 +352,10 @@
 					}
 				},
 				searchPageIndex(page){
-					this.pageIndex = page;
-					this.getReo()
+					if(this.pageIndex != page){
+						this.pageIndex = page;
+						this.queryStore()
+					}
 				},
 			},
 			created () {

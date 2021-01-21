@@ -114,8 +114,7 @@
 		
 		<!-- 添加仓库信息模态框 -->
 		<div id="add_modal" class="modal fade" table-index="-1" role="dialog"
-			aria-labelledby="myModalLabel" aria-hidden="true"
-			data-backdrop="static">
+			aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -445,16 +444,17 @@
 							toastr.success("编辑" + this.store_name_editModal + "成功！");
 							this.queryStore();
 						}else{
-							toastr.success(res.data.errorMsg);
+							toastr.error(res.data.errorMsg);
 						}
 					})
 				},
 				delete_row(index){
 					this.delete_row_index = index;
+					console.log(index)
 				},
 				confirm_delete(){		// 模态框中确认删除
-					console.log("confirm_delete中index：" + this.delete_row_index)
-					axios.post("http://localhost:8080/SMS/store/delStore",{operateNo:"1001", id:this.storeLists[this.delete_row_index].id, traceLogId:"111111"},
+					console.log("confirm_delete中index：",this.delete_row_index)
+					axios.post("http://localhost:8080/SMS/store/delStore",{operateNo:"1001", id:this.delete_row_index, traceLogId:"111111"},
 					{headers:{'token': this.token}}).then(res=>{
 						console.log(res)
 						if(res.data.success == true){
@@ -463,10 +463,10 @@
 									$(this).modal('hide');
 								}
                 			});
-							toastr.success("删除" + this.storeLists[this.delete_row_index].storeName + "成功！");
+							toastr.success("删除" + this.delete_row_index + "号仓库成功！");
 							this.queryStore();
 						}else{
-							toastr.success("删除" + this.storeLists[this.delete_row_index].storeName + "失败，请重试！");
+							toastr.error(res.data.errorMsg);
 						}
 					});	
 				},
@@ -484,8 +484,10 @@
 					}
 				},
 				searchPageIndex(page){
-					this.pageIndex = page;
-					this.queryStore()
+					if(this.pageIndex != page){
+						this.pageIndex = page;
+						this.queryStore()
+					}
 				},
 			},
 			created () {
