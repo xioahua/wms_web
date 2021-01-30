@@ -8,6 +8,12 @@
     <link rel="stylesheet" type="text/css" href="./css/mainPage.css">
     <script type="text/javascript" src="./js/jquery-2.2.3.min.js"></script>
     <script type="text/javascript" src="./js/bootstrap.min.js"></script>
+    <!-- toastr消息提示 -->
+    <link rel="stylesheet" href="../css/toastr.min.css">
+    <script src="../js/toastr.min.js"></script>
+    <script type="text/javascript">		// js初始化
+        toastr.options.positionClass = 'toast-top-center';
+    </script>
 </head>
 <body style="padding-top: 55px;">
 <div id="app">
@@ -267,7 +273,7 @@
                 this.token = $.query.get("token");
             },
             signOut(){
-                axios.get("http://localhost:8080/SMS/account/logout?token="+this.token).then(res => {
+                axios.get("http://localhost:8080/SMS/account/logout?userid="+this.userId+"&token="+this.token).then(res => {
                     console.log(res);
                     if(res.data.success == true || res.data.errorCode == "403"){
                         this.userId = "";
@@ -283,7 +289,7 @@
         created () {
             this.getUserInfo();
             if(this.token == ""){
-                alert("请先登陆！")
+                toastr.error("请先登陆！")
                 window.location.href='./login.html';
             }
         }

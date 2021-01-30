@@ -83,7 +83,7 @@
 									<td v-text="item.storeArea"></td>
 									<td v-text="item.storeDesc"></td>
 									<td v-text="item.storeTotalPrice"></td>
-									<td>无</td>
+									<td v-text="item.remark"></td>
 									<td>小张</td>
 									<td>2020-11-13 13:25:35</td>
 									<td>小李</td>
@@ -372,7 +372,7 @@
 						{operateNo:"1001", storeName:this.storeName,storeAddress:this.storeAddress,
 						storeStatus:this.select_Full_Avaliable,pageSize:this.pageSize,pageIndex:this.pageIndex,traceLogId:"111111"},{headers:{'token': this.token}}).then(res=>{
 						this.storeLists = res.data.result.list
-						console.log(res)
+						console.log("queryStore:",res)
 						this.page_data = res.data.result;
 					})
 				},

@@ -4,7 +4,13 @@
     <meta charset="UTF-8">
     <title>用户登陆</title>
     <link rel="stylesheet" href="./css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="./css/login.css"/>
+	<link rel="stylesheet" href="./css/login.css"/>
+	<!-- toastr消息提示 -->
+    <link rel="stylesheet" href="../css/toastr.min.css">
+    <script src="../js/toastr.min.js"></script>
+    <script type="text/javascript">		// js初始化
+        toastr.options.positionClass = 'toast-top-center';
+    </script>
 </head>
 
 <body>
@@ -106,14 +112,14 @@
 								window.location.href='./mainPage.html?userId=' + res.data.result.userID+'&userName=' + res.data.result.userName +'&token='+res.data.result.token;
 							}
 							else{
-								alert(res.data.errorMsg)
+								toastr.error(res.data.errorMsg)
 								this.changeImageCode();
 							}
                         });
                     }else if(this.userId =='' || this.password == ''){
-                        alert("请输入账号密码！")
+                        toastr.error("请输入账号密码！")
                     }else if(this.userInputCheckCode == ''){
-						alert("请输入验证码！")
+						toastr.error("请输入验证码！")
 					}
                 },
 				generateMD5(){	
