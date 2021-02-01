@@ -239,7 +239,7 @@
                                     <h4>第一步：选择出入库编号后点击下面的下载按钮，下载导入电子表格模板</h4>
                                 </div>
                                 <div style="margin-top: 30px; margin-bottom: 15px">
-                                    <a class="btn btn-info" :href="'http://localhost:8080/SMS/commons/fileSource/downInOrOutDetail?token=' + this.token"
+                                    <a class="btn btn-info" :href="'http://59.74.48.24:8080/SMS/commons/fileSource/downInOrOutDetail?token=' + this.token"
                                         target="_blank"> <span class="glyphicon glyphicon-download"></span>
                                         <span>下载</span>
                                     </a>
@@ -604,7 +604,7 @@
                 }
             },
             queryInOurOutRecord(){      // 查询出入库列表
-                axios.post("http://localhost:8080/SMS/store/queryInOurOutRecordList", 
+                axios.post("http://59.74.48.24:8080/SMS/store/queryInOurOutRecordList", 
                 {operateNo:"1001", traceLogId:"111111",warehousingBelongStore:this.storeNameSelected, warehousingType: this.in_or_out,
                 pageSize:this.pageSize,pageIndex:this.pageIndex,traceLogId:"11111111"},{headers: {'token': this.token}}).then(res =>{
                     console.log(res)
@@ -614,7 +614,7 @@
             },
             getStoreEnum(){		//获取下拉枚举值
                 const _this = this
-                axios.post("http://localhost:8080/SMS/enums/storeEnum",{operateNo:"1001", traceLogId:"111111"},{headers: {'token': this.token}}).then(function(res){
+                axios.post("http://59.74.48.24:8080/SMS/enums/storeEnum",{operateNo:"1001", traceLogId:"111111"},{headers: {'token': this.token}}).then(function(res){
                     console.log(res)
                     _this.storeList = res.data.result.storeMap;
                 });
@@ -637,7 +637,7 @@
                     headers:{'Content-Type':'multipart/form-data','token': this.token}
                 };
                 if (this.file!="") {    //检查是否选择上传文件
-                    axios.post('http://localhost:8080/SMS/store/importStoreIn',param,config).then(response=>{
+                    axios.post('http://59.74.48.24:8080/SMS/store/importStoreIn',param,config).then(response=>{
                         console.log(response.data)
                         if(response.data.success == true){
                             $('.modal').map(function () {
@@ -666,7 +666,7 @@
             confimExport(){   // 导出模态框确认下载
                 if (this.queryInOurOutRecordList.length != 0){
                     if(this.selectedInOutNumber != ""){
-                        axios.post("http://localhost:8080/SMS/commons/fileSource/exportStoreIn",
+                        axios.post("http://59.74.48.24:8080/SMS/commons/fileSource/exportStoreIn",
                             {inOutNumber:this.selectedInOutNumber,operateNo:"1001"},{headers: {'token': this.token},responseType:'blob'}).then(res =>{
                             console.log("导出模态框确认下载成功",res);
                             // if (res.data.) {
@@ -697,7 +697,7 @@
                 }
             },
             edit_row(id){   //编辑行
-                axios.post("http://localhost:8080/SMS/store/queryInOurOutRecordDetail",{id:id, operateNo:"1001",traceLogId:"11111"},{headers: {'token': this.token}}).then(res=>{
+                axios.post("http://59.74.48.24:8080/SMS/store/queryInOurOutRecordDetail",{id:id, operateNo:"1001",traceLogId:"11111"},{headers: {'token': this.token}}).then(res=>{
                     console.log(res);
                     this.edit_id=id;
                     this.edit_inOutNumber = res.data.result.inOutNumber;
@@ -710,7 +710,7 @@
                 })
             },
             confirm_update(){
-                axios.post("http://localhost:8080/SMS/store/editInOrOutRecord",{id:this.edit_id,operateNo:"1001",
+                axios.post("http://59.74.48.24:8080/SMS/store/editInOrOutRecord",{id:this.edit_id,operateNo:"1001",
                     warehousingType:this.edit_in_out_type,warehousingBelongStore:this.edit_belongStore,supplerId:this.edit_supllier,
                     functionUse:this.edit_functionUse,receiveDepartment:this.edit_receiveDepartment,remark:this.edit_remark},{headers: {'token': this.token}}).then(res =>{
                         console.log(res)
@@ -743,7 +743,7 @@
             },
             row_mingxi(inOutNumber){   //出入库记录明细
                 // toastr.error(inOutNumber)
-                axios.post("http://localhost:8080/SMS/store/singleStoreInOrOutList",{operateNo:"1001",inOutNumber:inOutNumber},{headers: {'token': this.token}}).then(res =>{
+                axios.post("http://59.74.48.24:8080/SMS/store/singleStoreInOrOutList",{operateNo:"1001",inOutNumber:inOutNumber},{headers: {'token': this.token}}).then(res =>{
                     console.log("recored_result:", res);
                     this.recored_result = res.data.result
                 })
@@ -753,7 +753,7 @@
                 console.log(this.delete_in_out_record_id);
             },
             delete_in_out_ofconfirmModal(){     // 删除模态框确认删除该行出入库记录
-                axios.post("http://localhost:8080/SMS/store/delInOrOutRecord",{operateNo:"1001", id:this.delete_in_out_record_id, traceLogId:"1001"},{headers: {'token': this.token}}).then(res =>{
+                axios.post("http://59.74.48.24:8080/SMS/store/delInOrOutRecord",{operateNo:"1001", id:this.delete_in_out_record_id, traceLogId:"1001"},{headers: {'token': this.token}}).then(res =>{
                     console.log(res);
                     if (res.data.success == true) {
                         $('.modal').map(function () {
@@ -787,7 +787,7 @@
                 console.log(this.in_or_out_modal)
             },
             add_in_out_record_modal(){      //添加出入库记录
-                axios.post("http://localhost:8080/SMS/store/addInOrOutRecord",{functionUse:this.yongtu_addmodal,
+                axios.post("http://59.74.48.24:8080/SMS/store/addInOrOutRecord",{functionUse:this.yongtu_addmodal,
                  operateNo:"1001",warehousingBelongStore:this.belongStroe,supplerId:this.supplierSelected,warehousingType:this.in_or_out_modal, 
                  receiveDepartment:this.lingliaobumen_addModal,remark:this.remark_addModal},{headers: {'token': this.token}}).then(res =>{
                      console.log(res);

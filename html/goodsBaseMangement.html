@@ -339,7 +339,7 @@
                                     <h4>第一步：点击下载按钮，下载物资信息电子表格模板</h4>
                                 </div>
                                 <div style="margin-top: 30px; margin-bottom: 15px">
-                                    <a class="btn btn-info" :href="'http://localhost:8080/SMS/commons/fileSource/downGoodInfo?token=' + this.token"
+                                    <a class="btn btn-info" :href="'http://59.74.48.24:8080/SMS/commons/fileSource/downGoodInfo?token=' + this.token"
                                         target="_blank"><span class="glyphicon glyphicon-download"></span>
                                         <span>下载</span>
                                     </a>
@@ -615,7 +615,7 @@
 					console.log(this.goods_type)
 				},
 				getReo(){		//获取仓库中物资信息
-					axios.post("http://localhost:8080/SMS/store/queryStoreGoodList",{operateNo:"1001", goodName:this.product_name,
+					axios.post("http://59.74.48.24:8080/SMS/store/queryStoreGoodList",{operateNo:"1001", goodName:this.product_name,
 					goodType:this.goods_type,pageSize:this.pageSize,pageIndex:this.pageIndex,traceLogId:"111111"},{headers: {'token': this.token}}).then(res=>{
 						this.storeGoodList = res.data.result.list;
 						console.log(this.storeGoodList)
@@ -623,7 +623,7 @@
 					})
 				},
 				getStoreEnum(){		//获取下拉枚举值
-					axios.post("http://localhost:8080/SMS/enums/storeEnum",{operateNo:"1001", traceLogId:"111111"},{headers: {'token': this.token}}).then(res=>{
+					axios.post("http://59.74.48.24:8080/SMS/enums/storeEnum",{operateNo:"1001", traceLogId:"111111"},{headers: {'token': this.token}}).then(res=>{
 						this.goodTypeMap = res.data.result.goodTypeMap;
 						this.goodUnitMap = res.data.result.goodUnitMap
 						this.storedTypeMap = res.data.result.storedTypeMap
@@ -633,7 +633,7 @@
 					});	
 				},
 				add_goods(){
-					axios.post("http://localhost:8080/SMS/store/addStoreGood",{operateNo:"1001",goodName:this.addModal_good_name,
+					axios.post("http://59.74.48.24:8080/SMS/store/addStoreGood",{operateNo:"1001",goodName:this.addModal_good_name,
 					goodSize:this.addModal_good_size,goodType:this.addModal_good_type,
 					supplyId:this.addModal_good_supllier,goodUnits:this.addModal_good_unit,goodValue:this.addModal_good_value,
 					remark:this.addModal_good_remark},{headers: {'token': this.token}}).then(res =>{
@@ -663,7 +663,7 @@
 				},
 				edit(id){			//每行操作中编辑按钮触发
 					// console.log(index);
-					axios.post("http://localhost:8080/SMS/store/queryStoreGoodById",{id:id,operateNo:"1001",traceLogId:"11111"},{headers: {'token': this.token}}).then(res=>{
+					axios.post("http://59.74.48.24:8080/SMS/store/queryStoreGoodById",{id:id,operateNo:"1001",traceLogId:"11111"},{headers: {'token': this.token}}).then(res=>{
 						console.log(res)
 						this.good_id_editModal = res.data.result.id;
 						this.good_name_editModal = res.data.result.goodName;
@@ -686,7 +686,7 @@
 					this.good_good_unit_editModal = event.target.value;
 				},
 				confirm_update(){
-					axios.post("http://localhost:8080/SMS/store/editStoreGood",{operateNo:"1001",id:this.good_id_editModal,goodName:this.good_name_editModal,
+					axios.post("http://59.74.48.24:8080/SMS/store/editStoreGood",{operateNo:"1001",id:this.good_id_editModal,goodName:this.good_name_editModal,
 					goodSize:this.good_size_editModal,supplyId:this.good_supllier_editModal,goodType:this.good_type_editModal,goodUnits:this.good_unit_editModal,
 					goodValue:this.good_price_editModal,remark:this.good_remark_editModal},{headers: {'token': this.token}}).then(res=>{
 						console.log(res);
@@ -708,7 +708,7 @@
 					this.delete_row_id = id;
 				},
 				confirm_delete(){		// 模态框中确认删除
-					axios.post("http://localhost:8080/SMS/store/delStoreGood",{operateNo:"1001", id:this.delete_row_id, traceLogId:"111111"},
+					axios.post("http://59.74.48.24:8080/SMS/store/delStoreGood",{operateNo:"1001", id:this.delete_row_id, traceLogId:"111111"},
 					{headers: {'token': this.token}}).then(res=>{
 						console.log(res)
 						if(res.data.success == true){
@@ -761,7 +761,7 @@
 						headers:{'Content-Type':'multipart/form-data','token': this.token}
 					};
 					if (this.file!="") {    //检查是否选择上传文件
-						axios.post('http://localhost:8080/SMS/store/importGoodInfo',param,config).then(response=>{
+						axios.post('http://59.74.48.24:8080/SMS/store/importGoodInfo',param,config).then(response=>{
 							console.log(response.data)
 							if(response.data.success == true){
 								$('.modal').map(function () {
@@ -787,7 +787,7 @@
 				confimExport(){   // 导出模态框确认下载
 					console.log(this.storeGoodList.length)
 					if (this.storeGoodList.length != 0) {
-						axios.post("http://localhost:8080/SMS/commons/fileSource/exportGoodInfo",
+						axios.post("http://59.74.48.24:8080/SMS/commons/fileSource/exportGoodInfo",
 							{inOutNumber:this.selectedInOutNumber,operateNo:"1001"},{headers: {'token': this.token},responseType:'blob'}).then(res =>{
 							// console.log(res);
 							const a = document.createElement('a');

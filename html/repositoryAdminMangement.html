@@ -362,13 +362,13 @@
 		},
 		methods: {
 			getStoreEnum(){		//获取下拉枚举值
-                axios.post("http://localhost:8080/SMS/enums/storeEnum",{operateNo:"1001", traceLogId:"111111"},{headers: {'token': this.token}}).then(res =>{
+                axios.post("http://59.74.48.24:8080/SMS/enums/storeEnum",{operateNo:"1001", traceLogId:"111111"},{headers: {'token': this.token}}).then(res =>{
                     console.log(res)
                     this.storeEnumList = res.data.result;
                 });
             },
 			selectListByCondition(){	//查询所有管理员列表
-				axios.post("http://localhost:8080/SMS/store/selectListByCondition",{operateNo:"1001", traceLogId:"111111",pageIndex:this.pageIndex,
+				axios.post("http://59.74.48.24:8080/SMS/store/selectListByCondition",{operateNo:"1001", traceLogId:"111111",pageIndex:this.pageIndex,
 				pageSize:this.pageSize},{headers: {'token': this.token}}).then(res=>{
 					console.log(res)
 					this.repositoryAdminResult = res.data.result;
@@ -376,7 +376,7 @@
 				})
 			},
 			addRepositoryAdmin(){	//添加管理员
-				axios.post("http://localhost:8080/SMS/store/addRepositoryAdmin",{operateNo:"1001", address:this.addRepositoryAdminObject.address,
+				axios.post("http://59.74.48.24:8080/SMS/store/addRepositoryAdmin",{operateNo:"1001", address:this.addRepositoryAdminObject.address,
 				adminBelongCompany:this.addRepositoryAdminObject.adminBelongCompany,birth:this.addRepositoryAdminObject.birth,name:this.addRepositoryAdminObject.name,
 				projectName:this.addRepositoryAdminObject.projectName,roleId:this.addRepositoryAdminObject.roleId,sex:this.addRepositoryAdminObject.sex,
 				tel:this.addRepositoryAdminObject.tel,traceLogId:"111111",pageIndex:this.pageIndex,
@@ -432,7 +432,7 @@
 				console.log(this.delete_row_id)
             },
             delete_confirm(){
-                axios.post("http://localhost:8080/SMS/store/deleteRepositoryAdmin",{id:this.delete_row_id, operateNo:"1001",traceLogId:"11111"},{headers: {'token': this.token}}).then(res=>{
+                axios.post("http://59.74.48.24:8080/SMS/store/deleteRepositoryAdmin",{id:this.delete_row_id, operateNo:"1001",traceLogId:"11111"},{headers: {'token': this.token}}).then(res=>{
 					console.log(res);
 					if (res.data.success == true) {
 						toastr.success("删除成功！")

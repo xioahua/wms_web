@@ -639,7 +639,7 @@
                 console.log(this.storeName_selected)
             },
             singleStoreInOrOut(){   //出入库明细查询
-                axios.post("http://localhost:8080/SMS/store/singleStoreInOrOutList", 
+                axios.post("http://59.74.48.24:8080/SMS/store/singleStoreInOrOutList", 
                 {operateNo:"1001", goodStore: this.storeName_selected,goodName:this.search_good_name,
                 inOutNumber:this.search_in_out_number,pageSize:this.pageSize,pageIndex:this.pageIndex,traceLogId:"111111"},{headers: {'token': this.token}}).then(res=>{
                     console.log("出入库明细",res)
@@ -649,14 +649,14 @@
                 })
             },
             queryInOurOutRecord(){      // 查询出入库单号，添加出入库明细时使用
-                axios.post("http://localhost:8080/SMS/store/queryInOurOutRecordList", 
+                axios.post("http://59.74.48.24:8080/SMS/store/queryInOurOutRecordList", 
                 {operateNo:"1001", traceLogId:"111111"},{headers: {'token': this.token}}).then(res =>{
                     console.log("出入库单号",res)
                     this.addmodal_queryInOurOutRecordList = res.data.result.list;
                 })
             },
             getStoreEnum(){		//获取下拉枚举值
-                axios.post("http://localhost:8080/SMS/enums/storeEnum",{operateNo:"1001", traceLogId:"111111"},{headers: {'token': this.token}}).then(res=>{
+                axios.post("http://59.74.48.24:8080/SMS/enums/storeEnum",{operateNo:"1001", traceLogId:"111111"},{headers: {'token': this.token}}).then(res=>{
                     console.log(res)
                     this.goodMap = res.data.result.goodMap;
                     this.storeList = res.data.result.storeMap;
@@ -670,7 +670,7 @@
             change_addModal_good_id(event){
                 this.addModal_good_id = event.target.value;
                 this.addModal_good_name = this.goodMap[this.addModal_good_id];
-                axios.post("http://localhost:8080/SMS/store/queryGoodInfoByName",{operateNo:"1001",traceLogId:"1111",goodName:this.addModal_good_name},
+                axios.post("http://59.74.48.24:8080/SMS/store/queryGoodInfoByName",{operateNo:"1001",traceLogId:"1111",goodName:this.addModal_good_name},
                 {headers: {'token': this.token}}).then(res=>{
                     console.log("物资名称下拉框改变自动查该物资对应的单位与规格：", res)
                     this.addModal_good_size = res.data.result.list[0].goodSize
@@ -695,7 +695,7 @@
                 this.addModal_good_unit = event.target.value;
             },
             add_mingxi(){
-                axios.post("http://localhost:8080/SMS/store/singleStoreInOrOutAdd",{operateNo:"1001",goodId:this.addModal_good_id,
+                axios.post("http://59.74.48.24:8080/SMS/store/singleStoreInOrOutAdd",{operateNo:"1001",goodId:this.addModal_good_id,
                 inOutNumber:this.addModal_inOutNumber,goodType:this.addModal_good_type, goodUnits:this.addModal_good_unit,
                 goodSize:this.addModal_good_size,goodValue:this.addModal_good_value,goodNeedNum:this.addModal_good_NeedNum,
                 goodActualNum:this.addModal_good_ActualNum,remark:this.addModal_good_remark,
@@ -718,7 +718,7 @@
             change_editModal_good_id(event){
                 this.editModal_good_id = event.target.value;
                 this.editModal_good_name = this.goodMap[this.editModal_good_id];
-                axios.post("http://localhost:8080/SMS/store/queryGoodInfoByName",{operateNo:"1001",traceLogId:"1111",goodName:this.editModal_good_name},
+                axios.post("http://59.74.48.24:8080/SMS/store/queryGoodInfoByName",{operateNo:"1001",traceLogId:"1111",goodName:this.editModal_good_name},
                 {headers: {'token': this.token}}).then(res=>{
                     console.log("物资名称下拉框改变自动查该物资对应的单位与规格：", res)
                     this.editModal_good_unit = res.data.result.list[0].goodUnit
@@ -744,7 +744,7 @@
             },
             //编辑库存明细
             edit_stock_mingxi(id){
-                axios.post("http://localhost:8080/SMS/store/singleStoreInOrOutDetail",{id:id, operateNo:"1001",traceLogId:"1111"},{headers: {'token': this.token}}).then(res=>{
+                axios.post("http://59.74.48.24:8080/SMS/store/singleStoreInOrOutDetail",{id:id, operateNo:"1001",traceLogId:"1111"},{headers: {'token': this.token}}).then(res=>{
                     console.log(res)
                     this.editModal_mingxi_id = id;
                     this.editModal_good_id = res.data.result.goodId;
@@ -763,7 +763,7 @@
             },
             //确认修改明细
             confirm_update(){
-                axios.post("http://localhost:8080/SMS/store/singleStoreInOrOutEdit",{operateNo:"1001",id:this.editModal_mingxi_id,goodId:this.editModal_good_id,
+                axios.post("http://59.74.48.24:8080/SMS/store/singleStoreInOrOutEdit",{operateNo:"1001",id:this.editModal_mingxi_id,goodId:this.editModal_good_id,
                 goodSize:this.editModal_good_size, goodType:this.editModal_good_type, goodUnits:this.editModal_good_unit,
                 goodNeedNum:this.editModal_good_NeedNum, goodValue:this.editModal_good_value,goodActualNum:this.editModal_good_ActualNum,goodStore:this.editModal_good_store,
                 inOutNumber:this.editModal_inOutNumber,remark:this.editModal_good_remark},{headers: {'token': this.token}}).then(res =>{
@@ -786,7 +786,7 @@
                 this.delete_row_id = id;
             },
             delete_confirm(){
-                axios.post("http://localhost:8080/SMS/store/singleStoreInOrOutDelete",{id:this.delete_row_id, operateNo:"1001",traceLogId:"11111"},{headers: {'token': this.token}}).then(res=>{
+                axios.post("http://59.74.48.24:8080/SMS/store/singleStoreInOrOutDelete",{id:this.delete_row_id, operateNo:"1001",traceLogId:"11111"},{headers: {'token': this.token}}).then(res=>{
                     console.log(res);
                     if (res.data.success == true) {
                         toastr.success("删除成功！")

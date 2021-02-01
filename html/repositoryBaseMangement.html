@@ -368,7 +368,7 @@
 			},
 			methods: {
 				queryStore(){
-					axios.post("http://localhost:8080/SMS/store/queryStore",
+					axios.post("http://59.74.48.24:8080/SMS/store/queryStore",
 						{operateNo:"1001", storeName:this.storeName,storeAddress:this.storeAddress,
 						storeStatus:this.select_Full_Avaliable,pageSize:this.pageSize,pageIndex:this.pageIndex,traceLogId:"111111"},{headers:{'token': this.token}}).then(res=>{
 						this.storeLists = res.data.result.list
@@ -386,14 +386,14 @@
 					this.store_status_addModal = event.target.value;
 				},
 				getStoreEnum(){		//获取下拉枚举值
-					axios.post("http://localhost:8080/SMS/enums/storeEnum",{operateNo:"1001", traceLogId:"111111"},{headers:{'token': this.token}}).then(res=>{
+					axios.post("http://59.74.48.24:8080/SMS/enums/storeEnum",{operateNo:"1001", traceLogId:"111111"},{headers:{'token': this.token}}).then(res=>{
 						console.log(res)
 						this.storedTypeMap = res.data.result.storedTypeMap
 						this.storeStatusMap = res.data.result.storeStatusMap
 					});
 				},
 				addStore(){		//添加仓库
-					axios.post("http://localhost:8080/SMS/store/addStore",{operateNo:"1001",storeName:this.store_name_addModal,
+					axios.post("http://59.74.48.24:8080/SMS/store/addStore",{operateNo:"1001",storeName:this.store_name_addModal,
 						storeAddress:this.store_address_addModal,storeType:this.store_type_addModal, storeStatus:this.store_status_addModal, 
 						storeArea:this.store_area_addModal, storeDesc:this.store_dec_addModal, remark:this.store_remark_addModal},{headers:{'token': this.token}}).then(res=>{
 							console.log(res)
@@ -412,7 +412,7 @@
 				},
 				edit(id){			//每行操作中编辑按钮触发
 					console.log(id);
-					axios.post("http://localhost:8080/SMS/store/queryDetailById",{id:id,operateNo:"1001",traceLogId:"11111"},{headers:{'token': this.token}}).then(res=>{
+					axios.post("http://59.74.48.24:8080/SMS/store/queryDetailById",{id:id,operateNo:"1001",traceLogId:"11111"},{headers:{'token': this.token}}).then(res=>{
 						console.log(res)
 						this.store_id_editModal = res.data.result.id;
 						this.store_name_editModal = res.data.result.storeName;
@@ -431,7 +431,7 @@
 					this.store_statu_editModal = event.target.value;
 				},
 				confirm_update(){
-					axios.post("http://localhost:8080/SMS/store/editStore",{operateNo:"1001",id:this.store_id_editModal,storeName:this.store_name_editModal,
+					axios.post("http://59.74.48.24:8080/SMS/store/editStore",{operateNo:"1001",id:this.store_id_editModal,storeName:this.store_name_editModal,
 					storeType:this.store_type_editModal,storeAddress:this.store_address_editModal,storeStatus:this.store_statu_editModal,storeArea:this.store_area_editModal,
 					storeDesc:this.store_desc_editModal,remark:this.store_remark_editModal},{headers:{'token': this.token}}).then(res=>{
 						console.log(res)
@@ -454,7 +454,7 @@
 				},
 				confirm_delete(){		// 模态框中确认删除
 					console.log("confirm_delete中index：",this.delete_row_index)
-					axios.post("http://localhost:8080/SMS/store/delStore",{operateNo:"1001", id:this.delete_row_index, traceLogId:"111111"},
+					axios.post("http://59.74.48.24:8080/SMS/store/delStore",{operateNo:"1001", id:this.delete_row_index, traceLogId:"111111"},
 					{headers:{'token': this.token}}).then(res=>{
 						console.log(res)
 						if(res.data.success == true){

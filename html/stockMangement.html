@@ -265,7 +265,7 @@
 			},
 			methods: {
 				getReo(){		//获取仓库中物资信息
-					axios.post("http://localhost:8080/SMS/store/queryStoreKucunList",
+					axios.post("http://59.74.48.24:8080/SMS/store/queryStoreKucunList",
 					{operateNo:"1001",goodName:this.product_name, pageIndex:this.pageIndex, pageSize:this.pageSize,goodType:this.goodTypeSelected, traceLogId:"111111"},{headers: {'token': this.token}}).then(res=>{
 						console.log(res)
 						this.storeGoodList = res.data.result.list;
@@ -273,7 +273,7 @@
 					})
 				},
 				getStoreEnum(){		//获取下拉枚举值
-					axios.post("http://localhost:8080/SMS/enums/storeEnum",{operateNo:"1001", traceLogId:"111111"},{headers: {'token': this.token}}).then(res=>{
+					axios.post("http://59.74.48.24:8080/SMS/enums/storeEnum",{operateNo:"1001", traceLogId:"111111"},{headers: {'token': this.token}}).then(res=>{
 						console.log(res)
 						this.goodTypeMap = res.data.result.goodTypeMap;
 						this.goodUnitMap = res.data.result.goodUnitMap

@@ -95,18 +95,18 @@
                 // 点击更换验证码
                 changeImageCode(){
 					let date = new Date().getTime();
-					axios.get("http://localhost:8080/SMS/account/checkCode/"+ date, {responseType:'blob'}).then(res=>{
+					axios.get("http://59.74.48.24:8080/SMS/account/checkCode/"+ date, {responseType:'blob'}).then(res=>{
 						console.log(res);
 						this.imageCodeSrc = window.URL.createObjectURL(res.data);
 						this.checkCode = res.headers.checkcode;
 					});
-					// this.imageCodeSrc = "http://localhost:8080/SMS/account/checkCode/"+ date;
+					// this.imageCodeSrc = "http://59.74.48.24:8080/SMS/account/checkCode/"+ date;
                 },
                 // 提交登陆
                 submit(){
 					this.generateMD5();
                     if(this.userId!="" && this.password != "" && this.userInputCheckCode != ""){
-                        axios.post("http://localhost:8080/SMS/account/login",{"userId":this.userId, "password":this.password_MD5, "checkCode":this.checkCode}).then(res=>{
+                        axios.post("http://59.74.48.24:8080/SMS/account/login",{"userId":this.userId, "password":this.password_MD5, "checkCode":this.checkCode}).then(res=>{
 							console.log(res);
 							if(res.data.success == true){
 								window.location.href='./mainPage.html?userId=' + res.data.result.userID+'&userName=' + res.data.result.userName +'&token='+res.data.result.token;

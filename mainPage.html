@@ -273,7 +273,7 @@
                 this.token = $.query.get("token");
             },
             signOut(){
-                axios.get("http://localhost:8080/SMS/account/logout?userid="+this.userId+"&token="+this.token).then(res => {
+                axios.get("http://59.74.48.24:8080/SMS/account/logout?userid="+this.userId+"&token="+this.token).then(res => {
                     console.log(res);
                 });
                 this.userId = "";
