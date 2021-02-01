@@ -668,7 +668,7 @@
                     if(this.selectedInOutNumber != ""){
                         axios.post("http://localhost:8080/SMS/commons/fileSource/exportStoreIn",
                             {inOutNumber:this.selectedInOutNumber,operateNo:"1001"},{headers: {'token': this.token},responseType:'blob'}).then(res =>{
-                            console.log("导出模态框确认下载",res);
+                            console.log("导出模态框确认下载成功",res);
                             // if (res.data.) {
                                 
                             // }
@@ -679,7 +679,9 @@
                             a.click();
                             window.URL.revokeObjectURL(res.data);
                         }).catch(error =>{
-                            console.log("导出模态框确认下载",error.response)
+                            console.log("导出模态框确认下载response",error.response)
+                            console.log("导出模态框确认下载request",error.request)
+                            console.log("导出模态框确认下载message",error.message)
                         })
                         $('.modal').map(function () {
                             if (!$(this).is(":hidden")){
