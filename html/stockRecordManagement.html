@@ -93,7 +93,7 @@
                                 <td v-text="item.id"></td>
                                 <td v-text="item.inOutNumber"></td>
                                 <td v-text="item.warehousingType"></td>
-                                <td v-text="item.warehousingBelongStore"></td>
+                                <td v-text="item.warehousingBelongStoreName"></td>
                                 <td v-text="item.supplerId"></td>
                                 <td v-text="item.functionUse"></td>
                                 <td v-text="item.receiveDepartment"></td>
@@ -648,7 +648,7 @@
                             });
                             this.file = '';
                             this.fileName = '';
-                            toastr.success("已解析"+response.data.result.avaliableNum+"条,导入成功"+ response.data.result.totalNum+"条");
+                            toastr.success("总条数："+response.data.result.totalNum+",有效条数："+ response.data.result.avaliableNum+",无效条数："+response.data.result.failNum);
                             this.queryInOurOutRecord();
                         }else{
                             toastr.error(response.data.errorMsg);
@@ -668,13 +668,18 @@
                     if(this.selectedInOutNumber != ""){
                         axios.post("http://localhost:8080/SMS/commons/fileSource/exportStoreIn",
                             {inOutNumber:this.selectedInOutNumber,operateNo:"1001"},{headers: {'token': this.token},responseType:'blob'}).then(res =>{
-                            // console.log(res);
+                            console.log("导出模态框确认下载",res);
+                            // if (res.data.) {
+                                
+                            // }
                             const a = document.createElement('a');
                             document.body.appendChild(a);
                             a.href = window.URL.createObjectURL(res.data);
                             a.download = this.selectedInOutNumber + '出入库记录明细导出.xls';
                             a.click();
                             window.URL.revokeObjectURL(res.data);
+                        }).catch(error =>{
+                            console.log("导出模态框确认下载",error.response)
                         })
                         $('.modal').map(function () {
                             if (!$(this).is(":hidden")){
