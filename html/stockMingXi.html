@@ -47,12 +47,12 @@
                         <input class="form-control" v-model="search_in_out_number" placeholder="出入库编号">
                     </div>
                 </form>
-                <form class="form-inline"  style="margin-left: 10px;">
+                <!-- <form class="form-inline"  style="margin-left: 10px;">
                     <label class="form-label">日期范围：</label>
                     <input class="form_date form-control" value="" id="search_start_date" placeholder="开始日期">
                     <label class="form-label">&nbsp;&nbsp;-&nbsp;&nbsp;</label>
                     <input class="form_date form-control" value="" id="search_end_date" placeholder="结束日期">
-                </form>
+                </form> -->
                 <button class="btn btn-success" @click="singleStoreInOrOut()" style="margin-left: 10px;">
                     <span class="glyphicon glyphicon-search"></span><span>查询</span>
                 </button>
@@ -104,8 +104,8 @@
                                 <td v-text="item.status"></td>
                                 <td v-text="item.remark"></td>
                                 <td>
-                                    <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#edit_modal" @click="edit_stock_mingxi(item.detailId)">编辑</button>
-                                    <button class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteWarning_modal" @click="edit_delete(item.detailId)">删除</button>
+                                    <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#edit_modal" @click="edit_stock_mingxi(item.detailId)" v-show="item.status != '失效'">编辑</button>
+                                    <button class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteWarning_modal" @click="edit_delete(item.detailId)" v-show="item.status != '失效'">删除</button>
                                 </td>
                             </tr>
                             <tr v-if="page_data.total==0"><td colspan="14">未查到数据</td></tr>
@@ -128,7 +128,7 @@
         </div>
     </div>
 
-    <!-- 添加物资信息模态框 -->
+    <!-- 添加出入库明细 -->
     <div id="add_modal" class="modal fade" table-index="-1" role="dialog"
     aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
     <div class="modal-dialog">
@@ -160,7 +160,7 @@
                                 <div class="col-md-8 col-sm-8">
                                     <select class="form-control" v-model="addModal_good_id" @change="change_addModal_good_id($event)">
                                         <option value="">请选择物资名称</option>
-                                        <option v-for="(value,key) in goodMap" :value="value" v-text="value"></option>
+                                        <option v-for="(value,key) in goodMap" :value="key" v-text="value"></option>
                                     </select>
                                 </div>
                             </div>
@@ -181,7 +181,12 @@
                                 <label class="control-label col-md-4 col-sm-4"><span>物资供应商：</span>
                                 </label>
                                 <div class="col-md-8 col-sm-8">
-                                    <input type="text" class="form-control" v-model="addModal_good_supllier" placeholder="物资供应商">
+                                    <!-- <input type="text" class="form-control" v-model="addModal_good_supllier" placeholder="物资供应商"> -->
+                                    <select class="form-control" v-model="addModal_good_supllier" @change="change_addModal_good_supllier($event)">
+                                        <option value="1001">供应商1</option>
+                                        <option value="1003">供应商3</option>
+                                        <option value="1004">供应商4</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -207,7 +212,7 @@
                                 <label for="" class="control-label col-md-4 col-sm-4"> <span>规格：</span>
                                 </label>
                                 <div class="col-md-8 col-sm-8">
-                                    <input type="text" class="form-control" v-model="addModal_good_size" placeholder="物资规格">
+                                    <input type="text" class="form-control" v-model="addModal_good_size" placeholder="物资规格" readonly>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -426,8 +431,8 @@
                                 style="width: 70px; height: 70px; margin-top: 20px;">
                         </div>
                         <div class="col-md-8 col-sm-8">
-                            <h3>是否确认删除该条仓库信息</h3>
-                            <p>(注意：若该仓库已经有出入库记录或仓存信息，则该仓库信息将不能删除成功。如需删除该仓库的信息，请保证该仓库没有出入库和仓存信息关联)</p>
+                            <h3>是否确认删除该条信息</h3>
+                            <p>(注意：若该明细状态为已完成，则该明细信息将不能删除成功。)</p>
                         </div>
                     </div>
                 </div>
@@ -461,14 +466,14 @@
                             <div class="form-group">
                                 <label class="control-label col-md-4 col-sm-4"> <span>物资ID：</span></label>
                                 <div class="col-md-8 col-sm-8">
-                                    <input type="text" class="form-control"v-model="editModal_mingxi_id" readonly>
+                                    <input type="text" class="form-control" v-model="editModal_mingxi_id" readonly>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="control-label col-md-4 col-sm-4"> <span>物资名称：</span>
                                 </label>
                                 <div class="col-md-8 col-sm-8">
-                                    <select class="form-control" v-model="editModal_good_id">
+                                    <select class="form-control" v-model="editModal_good_id" @change="change_editModal_good_id($event)">
                                         <option v-for="(value,key) in goodMap" :value="key" v-text="value"></option>
                                     </select>
                                 </div>
@@ -477,7 +482,7 @@
                                 <label class="control-label col-md-4 col-sm-4"> <span>规格：</span>
                                 </label>
                                 <div class="col-md-8 col-sm-8">
-                                    <input type="text" class="form-control"	v-model="editModal_good_size" placeholder="物资规格">
+                                    <input type="text" class="form-control"	v-model="editModal_good_size" readonly>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -487,13 +492,14 @@
                                     <select class="form-control" v-model="editModal_good_type">
                                         <option v-for="(value,key) in goodTypeMap" :value="key" v-text="value"></option>
                                     </select>
+                                    <!-- <input type="text" class="form-control" v-model="editModal_good_type" style="min-width: 100%" readonly> -->
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="control-label col-md-4 col-sm-4"> <span>物资供应商：</span>
                                 </label>
                                 <div class="col-md-8 col-sm-8">
-                                    <select class="form-control" v-model="editModal_good_supllier">
+                                    <select class="form-control" v-model="editModal_good_supllier" @change="change_editModal_good_store($event)">
                                         <option value="1001">供应商1</option>
                                         <option value="1003">供应商3</option>
                                         <option value="1004">供应商4</option>
@@ -506,6 +512,7 @@
                                     <select class="form-control" v-model="editModal_good_unit">
                                         <option v-for="(value,key) in goodUnitMap" :value="key" v-text="value"></option>
                                     </select>
+                                    <!-- <input type="text" class="form-control" v-model="editModal_good_unit" style="min-width: 100%" readonly> -->
                                 </div>
                             </div>
                             <div class="form-group">
@@ -532,7 +539,7 @@
                                 <label class="control-label col-md-4 col-sm-4"> <span>出入库仓库名：</span>
                                 </label>
                                 <div class="col-md-8 col-sm-8">
-                                    <select class="form-control" v-model="editModal_good_store">
+                                    <select class="form-control" v-model="editModal_good_store" @change="change_editModal_good_store($event)">
                                         <option v-for="(value,key) in storeList" :value="key" v-text="value"></option>
                                     </select>
                                 </div>
@@ -541,7 +548,7 @@
                                 <label class="control-label col-md-4 col-sm-4"> <span>出入库单号：</span>
                                 </label>
                                 <div class="col-md-8 col-sm-8">
-                                    <select class="form-control" v-model="editModal_inOutNumber">
+                                    <select class="form-control" v-model="editModal_inOutNumber" @change="change_editModal_inOutNumber($event)">
                                         <option v-for="item in inOutNumberList" v-text="item.inOutNumber"></option>
                                     </select>
                                 </div>
@@ -663,7 +670,14 @@
             change_addModal_good_id(event){
                 this.addModal_good_id = event.target.value;
                 this.addModal_good_name = this.goodMap[this.addModal_good_id];
-                console.log(this.addModal_good_name)
+                axios.post("http://localhost:8080/SMS/store/queryGoodInfoByName",{operateNo:"1001",traceLogId:"1111",goodName:this.addModal_good_name},
+                {headers: {'token': this.token}}).then(res=>{
+                    console.log("物资名称下拉框改变自动查该物资对应的单位与规格：", res)
+                    this.addModal_good_size = res.data.result.list[0].goodSize
+                    this.addModal_good_type = res.data.result.list[0].goodType
+                    this.addModal_good_unit = res.data.result.list[0].goodUnit
+                })
+                console.log(this.addModal_good_id, this.addModal_good_name)
             },
             change_addModal_good_store(event){
                 this.addModal_good_store = event.target.value;
@@ -673,6 +687,9 @@
             },
             change_addModal_good_type(event){
                 this.addModal_good_type = event.target.value;
+            },
+            change_addModal_good_supllier(event){
+                this.addModal_good_supllier = event.target.value;
             },
             change_addModal_good_unit(event){
                 this.addModal_good_unit = event.target.value;
@@ -697,12 +714,40 @@
                     }
                 })
             },
+            //编辑明细模态框中下拉事件
+            change_editModal_good_id(event){
+                this.editModal_good_id = event.target.value;
+                this.editModal_good_name = this.goodMap[this.editModal_good_id];
+                axios.post("http://localhost:8080/SMS/store/queryGoodInfoByName",{operateNo:"1001",traceLogId:"1111",goodName:this.editModal_good_name},
+                {headers: {'token': this.token}}).then(res=>{
+                    console.log("物资名称下拉框改变自动查该物资对应的单位与规格：", res)
+                    this.editModal_good_unit = res.data.result.list[0].goodUnit
+                    this.editModal_good_type = res.data.result.list[0].goodType
+                    this.editModal_good_size = res.data.result.list[0].goodSize
+                })
+                console.log(this.editModal_good_id, this.editModal_good_name)
+            },
+            change_editModal_good_store(event){
+                this.editModal_good_store = event.target.value;
+            },
+            change_editModal_inOutNumber(event){
+                this.editModal_inOutNumber = event.target.value;
+            },
+            change_editModal_good_type(event){
+                this.editModal_good_type = event.target.value;
+            },
+            change_editModal_good_supllier(event){
+                this.editModal_good_supllier = event.target.value;
+            },
+            change_editModal_good_unit(event){
+                this.editModal_good_unit = event.target.value;
+            },
             //编辑库存明细
             edit_stock_mingxi(id){
                 axios.post("http://localhost:8080/SMS/store/singleStoreInOrOutDetail",{id:id, operateNo:"1001",traceLogId:"1111"},{headers: {'token': this.token}}).then(res=>{
                     console.log(res)
                     this.editModal_mingxi_id = id;
-                    this.editModal_good_name = res.data.result.goodName;
+                    this.editModal_good_id = res.data.result.goodId;
                     this.editModal_good_size = res.data.result.goodSize;
                     this.editModal_good_type = res.data.result.goodType;
                     this.editModal_good_supllier = "1001";
@@ -716,8 +761,25 @@
                     this.editModal_inOutNumber = res.data.result.inOutNumber;
                 })
             },
+            //确认修改明细
             confirm_update(){
-                // axios.post("http://localhost:8080/SMS/store/singleStoreInOrOutEdit",{operateNo:"1001",goodId:this.editModal_good_id})
+                axios.post("http://localhost:8080/SMS/store/singleStoreInOrOutEdit",{operateNo:"1001",id:this.editModal_mingxi_id,goodId:this.editModal_good_id,
+                goodSize:this.editModal_good_size, goodType:this.editModal_good_type, goodUnits:this.editModal_good_unit,
+                goodNeedNum:this.editModal_good_NeedNum, goodValue:this.editModal_good_value,goodActualNum:this.editModal_good_ActualNum,goodStore:this.editModal_good_store,
+                inOutNumber:this.editModal_inOutNumber,remark:this.editModal_good_remark},{headers: {'token': this.token}}).then(res =>{
+                    console.log("编辑明细confirm_update",res)
+                    if (res.data.success == true) {
+                        $('.modal').map(function () {
+                            if (!$(this).is(":hidden")){
+                                $(this).modal('hide');
+                            }
+                        });
+                        toastr.success("修改明细成功！")
+                        this.queryInOurOutRecord()
+                    }else{
+                        toastr.error(res.data.errorMsg)
+                    }
+                })
             },
             //删除明细
             edit_delete(id){
@@ -726,6 +788,11 @@
             delete_confirm(){
                 axios.post("http://localhost:8080/SMS/store/singleStoreInOrOutDelete",{id:this.delete_row_id, operateNo:"1001",traceLogId:"11111"},{headers: {'token': this.token}}).then(res=>{
                     console.log(res);
+                    if (res.data.success == true) {
+                        toastr.success("删除成功！")
+                    } else {
+                        toastr.error(res.data.errorMsg)
+                    }
                 })
             },
             // 分页查询

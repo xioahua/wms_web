@@ -764,8 +764,9 @@
 								});
 								toastr.success("已解析"+response.data.result.avaliableNum+"条,导入成功"+ response.data.result.totalNum+"条,已存在"+response.data.result.existNum+"条");
 								this.file = '';
-								this.fileName = '',
-								this.getReo()
+								this.fileName=''
+								this.getReo(),
+								this.stepNumNow=1
 							}else{
 								toastr.error(response.data.errorMsg);
 							}

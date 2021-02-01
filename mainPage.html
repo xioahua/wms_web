@@ -275,15 +275,11 @@
             signOut(){
                 axios.get("http://localhost:8080/SMS/account/logout?userid="+this.userId+"&token="+this.token).then(res => {
                     console.log(res);
-                    if(res.data.success == true || res.data.errorCode == "403"){
-                        this.userId = "";
-                        this.userName = "";
-                        this.token = "";
-                        window.location.href='./login.html';
-                    }else{
-                       alert(res.data.errorMsg)
-                    }
                 });
+                this.userId = "";
+                this.userName = "";
+                this.token = "";
+                window.location.href='./login.html';
             },
         },
         created () {
